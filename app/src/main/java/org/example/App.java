@@ -12,3 +12,6 @@ public class App {
         System.out.println(new App().getGreeting());
     }
 }
+private static void App(String[] args){
+    System.out.println("Hello Sasha");
+}
