@@ -79,8 +79,8 @@ public final class Incident {
 
         /// вот сюда нужны сеттеры с проверкой для status, severity, owner
 
-        public void updatedAt() {
-            this.updatedAt = Instant.now();
-        }
+    public void updatedAt() {
+        this.updatedAt = Instant.now();
     }
+}
 
