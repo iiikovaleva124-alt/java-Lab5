@@ -53,7 +53,6 @@ public final class Incident {
         }
         this.description = description;
     }
-
     /// вот сюда нужны сеттеры с проверкой для status, severity, owner
 
     public void updatedAt() {

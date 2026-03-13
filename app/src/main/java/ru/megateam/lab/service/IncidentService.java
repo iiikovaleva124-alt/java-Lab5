@@ -79,7 +79,7 @@ public class IncidentService {
     public boolean linkSample(long incidentId, long sampleId) {
         return repository.getById(incidentId).map(inc -> {
             inc.setSampleId(sampleId);
-            inc.updatedAt;
+            Instant updatedAt = inc.updatedAt;
             repository.update(inc);
             return true;
         }).orElse(false);
