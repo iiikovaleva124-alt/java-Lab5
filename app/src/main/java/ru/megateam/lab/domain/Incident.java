@@ -53,7 +53,7 @@ public final class Incident {
         }
         this.description = description;
     }
-    /// вот сюда нужны сеттеры с проверкой для status, severity, owner
+    /// вот сюда нужны сеттеры с проверкой для status, severity, owner, sampleId
 
     public void updatedAt() {
         this.updatedAt = Instant.now();
