@@ -2,7 +2,7 @@ package ru.megateam.lab.domain;
 
 import java.time.Instant;
 public final class Incident {
-    public long id;
+    private long id;
     public String title;
     public String description;
     public IncidentSeverity severity;
@@ -12,6 +12,8 @@ public final class Incident {
     public String ownerUsername;
     public Instant createdAt;
     public Instant updatedAt;
+    private IncidentSeverity severity;
+    private IncidentStatus status;
 
     public Incident(long id, String title, String description, IncidentSeverity severity, IncidentStatus status, long sampleId, long instrumentId, String ownerUsername, Instant createdAt, Instant updatedAt){
         this.id = id;
@@ -54,10 +56,31 @@ public final class Incident {
         this.description = description;
     }
 
-    /// вот сюда нужны сеттеры с проверкой для status, severity, owner
-
-    public void updatedAt() {
-        this.updatedAt = Instant.now();
+    public void setSeverity(IncidentSeverity severity) {
+        if (severity == null) {
+            throw new IllegalArgumentException("Severity cannot be null");
+        }
+        this.severity = severity;
     }
-}
+
+    public void setStatus(IncidentStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
+        this.status = status;
+    }
+
+    public void setOwnerUsername(String ownerUsername) {
+        if (ownerUsername == null || ownerUsername.trim().isEmpty()) {
+            this.ownerUsername = "SYSTEM";
+        } else {
+            this.ownerUsername = ownerUsername;
+        }
+
+        /// вот сюда нужны сеттеры с проверкой для status, severity, owner
+
+        public void updatedAt() {
+            this.updatedAt = Instant.now();
+        }
+    }
 

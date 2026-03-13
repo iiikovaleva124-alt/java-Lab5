@@ -3,7 +3,7 @@ import java.time.Instant;
 
 public class IncidentCommet {
     // Уникальный номер комментария. Программа назначает сама.
-    public long id;
+    private long id;
 
     // К какому инциденту относится (id инцидента).
     // Должен ссылаться на реально существующий Incident.
@@ -17,4 +17,7 @@ public class IncidentCommet {
 
     // Когда оставили комментарий. Программа ставит автоматически.
     public Instant createdAt;
+
+    public long getId() { return id; }
+
 }

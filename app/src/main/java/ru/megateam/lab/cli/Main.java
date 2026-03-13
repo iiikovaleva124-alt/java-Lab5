@@ -18,12 +18,12 @@ public class Main {
 
         var inc1 = service.add("Spill on bench", IncidentSeverity.HIGH,
                 "acid spill near sink", "SYSTEM");
-        System.out.println("1. Создан инцидент: " + inc1.id);
+        System.out.println("1. Создан инцидент: " + inc1.getId());
 
 
         System.out.println("2. Список:");
         service.list(Optional.empty(), Optional.empty())
-                .forEach(inc -> System.out.println("  ID=" + inc.id + " " +
+                .forEach(inc -> System.out.println("  ID=" + inc.getId() + " " +
                         inc.severity + " " + inc.status + " " + inc.title));
 
 
@@ -37,7 +37,7 @@ public class Main {
 
         System.out.println("5. Только INVESTIGATING:");
         service.list(Optional.of(IncidentStatus.INVESTIGATING), Optional.empty())
-                .forEach(inc -> System.out.println("  " + inc.id));
+                .forEach(inc -> System.out.println("  " + inc.getId()));
 
 
         service.linkSample(1L, 12L);

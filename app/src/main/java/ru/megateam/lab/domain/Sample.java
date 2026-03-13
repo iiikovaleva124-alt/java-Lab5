@@ -1,10 +1,9 @@
 package ru.megateam.lab.domain;
 
 import java.time.Instant;
-import java.util.Stack;
 
 public final class Sample {
-    public long id;
+    private long id;
     public String name;
     public String type;
     public String location;
@@ -24,7 +23,16 @@ public final class Sample {
         this.updatedAt = updatedAt != null ? updatedAt : Instant.now();
     }
 
-    public String getName() { return name; }
+    private void setwnerUsername(String ownerUsername) {
+    }
+
+    public String setLocation(String location) { return name; }
+    public String setStatus(String status) { return name; }
+
+    public String getName() {
+        return null;
+    }
+    public long getId() { return id; }
     public String getType() { return type; }
     public String getLocation() { return location; }
     public String getStatus() { return status; }

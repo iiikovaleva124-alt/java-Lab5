@@ -39,7 +39,7 @@ public class IncidentService {
 
         if (lastN.isPresent()) {
             filtered = filtered.stream()
-                    .sorted((a, b) -> Long.compare(b.id, a.id))
+                    .sorted((a, b) -> Long.compare(b.getId(), a.getId()))
                     .limit(lastN.get())
                     .collect(Collectors.toList());
         }
@@ -56,14 +56,25 @@ public class IncidentService {
             if (incident.getStatus() == IncidentStatus.CLOSED) {
                 throw new IllegalArgumentException("You can not update closed incident");
             }
+
             Incident updated = switch (field.toLowerCase()) {
                 case "title" -> incident.setTitle(value);
                 case "description" -> incident.setDescription(value);
-                case "severity" -> incident.setSeverity(IncidentSeverity.valueOf(value.toUpperCase()));
+                case "severity" -> {
+                    try { incident.setSeverity(IncidentSeverity.valueOf(value.toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Ошибка: Серьезности '" + value + "' не существует!");
+                    }
+                }
                 case "status" -> {
                     IncidentStatus newStatus = IncidentStatus.valueOf(value.toUpperCase());
                     if (incident.getStatus() == IncidentStatus.CLOSED) {
                         throw new IllegalArgumentException("You can not change status in closed incident");
+                    }
+                    try {
+                        incident.setStatus(IncidentStatus.valueOf(value.toUpperCase()));
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Ошибка: Статуса '" + value + "' не существует!");
                     }
                     incident.setStatus(newStatus);
                 }

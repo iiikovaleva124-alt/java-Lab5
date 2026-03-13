@@ -21,7 +21,7 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
     @Override
     public Incident add(Incident incident) {
-        storage.put(incident.id, incident);
+        storage.put(incident.getId(), incident);
         return incident;
     }
 
@@ -37,7 +37,7 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
     @Override
     public Incident update(Incident incident) {
-        storage.put(incident.id, incident);
+        storage.put(incident.getId(), incident);
         return incident;
     }
 
