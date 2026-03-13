@@ -2,28 +2,62 @@ package ru.megateam.lab.domain;
 
 import java.time.Instant;
 public final class Incident {
-// Уникальный номер инцидента. Программа назначает сама.
     public long id;
-// Короткий заголовок (что случилось). Нельзя пустое. До 128 символов.
     public String title;
-// Подробности (что, где, как). Можно пусто. До 1024 символов.
     public String description;
-// Серьёзность: LOW, MEDIUM или HIGH.
     public IncidentSeverity severity;
-// Статус: NEW, INVESTIGATING или CLOSED.
     public IncidentStatus status;
-// Связанный образец (если относится к образцу). Может быть 0, если не связано.
     public long sampleId;
-// Связанный прибор (если относится к прибору). Может быть 0, если не связано.
     public long instrumentId;
-// Кто создал запись (логин). На ранних этапах можно "SYSTEM".
     public String ownerUsername;
-// Когда создано. Программа ставит автоматически.
     public Instant createdAt;
-// Когда обновляли. Программа обновляет автоматически.
     public Instant updatedAt;
 
-    public Incident(long l, String title, String description, IncidentSeverity severity, IncidentStatus incidentStatus, long l1, long l2, String s, Instant now, Instant now1) {
+    public Incident(long id, String title, String description, IncidentSeverity severity, IncidentStatus status, long sampleId, long instrumentId, String ownerUsername, Instant createdAt, Instant updatedAt){
+        this.id = id;
+        setTitle(title);
+        setDescription(description);
+        setSeverity(severity);
+        setStatus(status);
+        this.sampleId = sampleId;
+        this.instrumentId = instrumentId;
+        setOwnerUsername(ownerUsername);
+        this.createdAt = createdAt != null ? createdAt : Instant.now();
+        this.updatedAt = updatedAt != null ? createdAt : Instant.now();
+    }
+
+    public long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public IncidentSeverity getSeverity() { return severity; }
+    public IncidentStatus getStatus() { return status; }
+    public long getSampleId() { return sampleId; }
+    public long getInstrumentId() { return instrumentId; }
+    public String getOwnerUsername() { return ownerUsername; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+
+    public void setTitle(String title) {
+        if (title == null || title.trim().isEmpty()){
+            throw new IllegalArgumentException("Title can not be empty");
+        }
+        if (title.length() > 128) {
+            throw new IllegalArgumentException("Title must be under 128 chars");
+        }
+        this.title = title.trim();
+    }
+
+    public void setDescription(String description) {
+        if (description != null && description.length() > 1024) {
+            throw new IllegalArgumentException("Description must be under 1024 chars");
+        }
+        this.description = description;
+    }
+
+    /// вот сюда нужны сеттеры с проверкой для status, severity, owner
+
+    public void updatedAt() {
+        this.updatedAt = Instant.now();
     }
 }
 

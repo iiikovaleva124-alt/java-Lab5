@@ -20,10 +20,7 @@ public class IncidentService {
     }
 
     public Incident add(String title, IncidentSeverity severity, String description, String owner) {
-        validateTitle(title);
-        validateDescription(description);
         if (severity == null) severity = IncidentSeverity.LOW;
-
         Incident incident = new Incident(nextId++, title, description, severity,
                 IncidentStatus.NEW, 0L, 0L, owner != null ? owner : "SYSTEM",
                 Instant.now(), Instant.now());
@@ -56,45 +53,43 @@ public class IncidentService {
 
     public Optional<Incident> update(long id, String field, String value) {
         return repository.getById(id).map(incident -> {
+            if (incident.getStatus() == IncidentStatus.CLOSED) {
+                throw new IllegalArgumentException("You can not update closed incident");
+            }
             Incident updated = switch (field.toLowerCase()) {
-                case "title" -> new Incident(incident.id, value, incident.description,
-                        incident.severity, incident.status, incident.sampleId,
-                        incident.instrumentId, incident.ownerUsername,
-                        incident.createdAt, Instant.now());
-                case "description" -> new Incident(incident.id, incident.title, value,
-                        incident.severity, incident.status, incident.sampleId,
-                        incident.instrumentId, incident.ownerUsername,
-                        incident.createdAt, Instant.now());
-                case "severity" -> new Incident(incident.id, incident.title, incident.description,
-                        IncidentSeverity.valueOf(value.toUpperCase()), incident.status,
-                        incident.sampleId, incident.instrumentId, incident.ownerUsername,
-                        incident.createdAt, Instant.now());
-                case "status" -> new Incident(incident.id, incident.title, incident.description,
-                        incident.severity, IncidentStatus.valueOf(value.toUpperCase()),
-                        incident.sampleId, incident.instrumentId, incident.ownerUsername,
-                        incident.createdAt, Instant.now());
-                default -> throw new IllegalArgumentException("Unknown field: " + field);
+                case "title" -> incident.setTitle(value);
+                case "description" -> incident.setDescription(value);
+                case "severity" -> incident.setSeverity(IncidentSeverity.valueOf(value.toUpperCase()));
+                case "status" -> {
+                    IncidentStatus newStatus = IncidentStatus.valueOf(value.toUpperCase());
+                    if (incident.getStatus() == IncidentStatus.CLOSED) {
+                        throw new IllegalArgumentException("You can not change status in closed incident");
+                    }
+                    incident.setStatus(newStatus);
+                }
+                throw new IllegalArgumentException("Unknown field");
+
+
             };
-            return repository.update(updated);
+            incident.updatedAt();
+            return repository.update(incident);
         });
     }
 
     public boolean linkSample(long incidentId, long sampleId) {
         return repository.getById(incidentId).map(inc -> {
-            Incident updated = new Incident(inc.id, inc.title, inc.description,
-                    inc.severity, inc.status, sampleId, inc.instrumentId,
-                    inc.ownerUsername, inc.createdAt, Instant.now());
-            repository.update(updated);
+            inc.setSampleId(sampleId);
+            inc.updatedAt;
+            repository.update(inc);
             return true;
         }).orElse(false);
     }
 
     public boolean linkInstrument(long incidentId, long instrumentId) {
         return repository.getById(incidentId).map(inc -> {
-            Incident updated = new Incident(inc.id, inc.title, inc.description,
-                    inc.severity, inc.status, inc.sampleId, instrumentId,
-                    inc.ownerUsername, inc.createdAt, Instant.now());
-            repository.update(updated);
+            inc.setInstrumentId(instrumentId);
+            inc.updatedAt();
+            repository.update(inc);
             return true;
         }).orElse(false);
     }
@@ -113,6 +108,7 @@ public class IncidentService {
                         inc.createdAt.isBefore(toInstant))
                 .collect(Collectors.groupingBy(inc -> inc.severity, Collectors.counting()));
     }
+
     private long nextCommentId = 1L;
 
     public long addComment(long incidentId, String text, String owner) {
@@ -129,15 +125,5 @@ public class IncidentService {
 
     public List<Comment> getComments(long incidentId) {
         return repository.getComments(incidentId);
-    }
-
-    private void validateTitle(String title) {
-        if (title == null || title.trim().isEmpty() || title.length() > 128)
-            throw new IllegalArgumentException("Title must be 1-128 chars");
-    }
-
-    private void validateDescription(String description) {
-        if (description == null || description.trim().isEmpty() || description.length() > 1024)
-            throw new IllegalArgumentException("Description must be 1-1024 chars");
     }
 }
