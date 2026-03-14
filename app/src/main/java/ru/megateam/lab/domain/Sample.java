@@ -23,11 +23,6 @@ public final class Sample {
         this.updatedAt = updatedAt != null ? updatedAt : Instant.now();
     }
 
-    private void setwnerUsername(String ownerUsername) {
-    }
-
-    public String setLocation(String location) { return name; }
-    public String setStatus(String status) { return name; }
 
     public String getName() {
         return null;

@@ -57,7 +57,7 @@ public class IncidentService {
                 throw new IllegalArgumentException("You can not update closed incident");
             }
 
-            Incident updated = switch (field.toLowerCase()) {
+            switch (field.toLowerCase()) {
                 case "title" -> incident.setTitle(value);
                 case "description" -> incident.setDescription(value);
                 case "severity" -> {
@@ -78,7 +78,7 @@ public class IncidentService {
                     }
                     incident.setStatus(newStatus);
                 }
-                throw new IllegalArgumentException("Unknown field");
+                default -> throw new IllegalArgumentException("Unknown field");
 
 
             };
@@ -90,7 +90,7 @@ public class IncidentService {
     public boolean linkSample(long incidentId, long sampleId) {
         return repository.getById(incidentId).map(inc -> {
             inc.setSampleId(sampleId);
-            Instant updatedAt = inc.updatedAt;
+            inc.updatedAt();
             repository.update(inc);
             return true;
         }).orElse(false);

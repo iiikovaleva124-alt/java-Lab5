@@ -2,7 +2,7 @@ package ru.megateam.lab.domain;
 
 import java.time.Instant;
 public final class Incident {
-    private long id;
+    public long id;
     public String title;
     public String description;
     public IncidentSeverity severity;
@@ -12,8 +12,6 @@ public final class Incident {
     public String ownerUsername;
     public Instant createdAt;
     public Instant updatedAt;
-    private IncidentSeverity severity;
-    private IncidentStatus status;
 
     public Incident(long id, String title, String description, IncidentSeverity severity, IncidentStatus status, long sampleId, long instrumentId, String ownerUsername, Instant createdAt, Instant updatedAt){
         this.id = id;
@@ -75,9 +73,22 @@ public final class Incident {
             this.ownerUsername = "SYSTEM";
         } else {
             this.ownerUsername = ownerUsername;
+        }}
+    public void setSampleId(long sampleId) {
+        if (sampleId < 0) {
+            throw new IllegalArgumentException("Sample ID must be > 0");
         }
+        this.sampleId = sampleId;
+        updatedAt();
+    }
+    public void setInstrumentId(long instrumentId) {
+        if (instrumentId < 0) {
+            throw new IllegalArgumentException("Instrument ID must be > 0");
+        }
+        this.instrumentId = instrumentId;
+        updatedAt();
+    }
 
-        /// вот сюда нужны сеттеры с проверкой для status, severity, owner
 
     public void updatedAt() {
         this.updatedAt = Instant.now();
