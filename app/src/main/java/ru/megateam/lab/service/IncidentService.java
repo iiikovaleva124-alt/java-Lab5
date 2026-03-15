@@ -62,8 +62,8 @@ public class IncidentService {
                 case "description" -> incident.setDescription(value);
                 case "severity" -> {
                     try { incident.setSeverity(IncidentSeverity.valueOf(value.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Ошибка: Серьезности '" + value + "' не существует!");
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("This severity does not exist");
                     }
                 }
                 case "status" -> {
@@ -74,7 +74,7 @@ public class IncidentService {
                     try {
                         incident.setStatus(IncidentStatus.valueOf(value.toUpperCase()));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Ошибка: Статуса '" + value + "' не существует!");
+                        throw new IllegalArgumentException("This status does not exist");
                     }
                     incident.setStatus(newStatus);
                 }
@@ -114,7 +114,7 @@ public class IncidentService {
         Instant toInstant = to.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
 
         return repository.getAll().stream()
-                .filter(inc -> inc.createdAt != null &&  // ← ДОБАВЬ ЭТО
+                .filter(inc -> inc.createdAt != null &&
                         inc.createdAt.isAfter(fromInstant) &&
                         inc.createdAt.isBefore(toInstant))
                 .collect(Collectors.groupingBy(inc -> inc.severity, Collectors.counting()));
@@ -126,7 +126,7 @@ public class IncidentService {
         if (!repository.getById(incidentId).isPresent()) {
             throw new IllegalArgumentException("Incident not found");
         }
-        if (text.trim().isEmpty() || text.length() > 512) {
+        if (text.trim().isEmpty() || text.length() > Comment.maxCommentLength) {
             throw new IllegalArgumentException("Comment 1-512 chars");
         }
 

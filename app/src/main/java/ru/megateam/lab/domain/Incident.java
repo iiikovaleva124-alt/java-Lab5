@@ -37,18 +37,21 @@ public final class Incident {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
+    public int maxTitleLength = 128;
+    public int maxDescriptionLength = 1024;
+
     public void setTitle(String title) {
         if (title == null || title.trim().isEmpty()){
             throw new IllegalArgumentException("Title can not be empty");
         }
-        if (title.length() > 128) {
+        if (title.length() > maxTitleLength) {
             throw new IllegalArgumentException("Title must be under 128 chars");
         }
         this.title = title.trim();
     }
 
     public void setDescription(String description) {
-        if (description != null && description.length() > 1024) {
+        if (description != null && description.length() > maxDescriptionLength) {
             throw new IllegalArgumentException("Description must be under 1024 chars");
         }
         this.description = description;

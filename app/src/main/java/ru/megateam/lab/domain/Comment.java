@@ -8,6 +8,8 @@ public final class Comment {
     public final Instant createdAt;
     public final String ownerUsername;
 
+    public static int maxCommentLength = 512;
+
     public long getId() { return id; }
 
     public Comment(long id, String text, Instant createdAt, String ownerUsername) {
