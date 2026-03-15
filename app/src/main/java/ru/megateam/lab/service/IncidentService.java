@@ -1,7 +1,7 @@
 package ru.megateam.lab.service;
 
 import ru.megateam.lab.domain.*;
-import ru.megateam.lab.repository.IncidentRepository;
+import ru.megateam.lab.repository.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
