@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
     public class SampleService {
-        private final Map<Long, String> samples = new HashMap<>(); // id -> name
+        private final Map<Long, String> samples = new HashMap<>();
         private long nextId = 1;
 
-        public long add(String name) {
+        public long SampleAdd(String name) {
             long id = nextId++;
             samples.put(id, name);
             return id;

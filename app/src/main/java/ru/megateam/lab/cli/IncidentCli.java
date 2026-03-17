@@ -15,7 +15,7 @@ public class IncidentCLI {
     private final SampleService sampleService;
     private final InstrumentService instrumentService;
     private final Scanner scanner;
-    private String currentUser = "SYSTEM";
+    private final String currentUser = "SYSTEM";
 
     public IncidentCLI(IncidentService incidentService,
                        SampleService sampleService,
@@ -68,7 +68,7 @@ public class IncidentCLI {
 
         switch (command) {
             case "inc_add" -> handleIncAdd();
-            case "inc_list" -> handleIncList(args); // вот эти команды надо прописать
+            case "inc_list" -> handleIncList(args); // Саша, вот эти команды надо прописать
             case "inc_show" -> handleIncShow(args);
             case "inc_update" -> handleIncUpdate(args);
             case "inc_link_sample" -> handleLinkSample(args);
@@ -77,14 +77,14 @@ public class IncidentCLI {
             case "inc_comment_list" -> handleCommentList(args);
             case "inc_close" -> handleIncClose(args);
             case "inc_report" -> handleIncReport(args);
-            case "sample_add" -> handleSampleAdd();
-            case "inst_add" -> handleInstAdd();
+            case "sample_add" -> handleSampleAdd(); // есть соответствующая в sample service
+            case "inst_add" -> handleInstAdd(); //есть соответствующая в instrument service
 
-            default -> throw new IllegalArgumentException("Неизвестная команда: " + command);
+            default -> throw new IllegalArgumentException("Unknown command: " + command);
         }
     }
 
-    private void handleIncAdd() {
+    private void handleIncAdd() { // интерактивная команда
         System.out.println("Creating an incident");
 
         System.out.print("Please type a title (1-128 chars): ");
@@ -121,8 +121,8 @@ public class IncidentCLI {
         System.out.println("  sample_add                  - create a sample");
         System.out.println("  inst_add                    - add an instrument");
         System.out.println();
-        System.out.println("  help                        - эта справка");
-        System.out.println("  exit                        - выход");
+        System.out.println("  help                        - type to get info about all commands");
+        System.out.println("  exit                        - type if you want to exit");
         System.out.println();
     }
 }

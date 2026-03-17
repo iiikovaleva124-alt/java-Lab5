@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstrumentService {
-    private final Map<Long, String> instruments = new HashMap<>(); // id -> name
+    private final Map<Long, String> instruments = new HashMap<>();
     private long nextId = 1;
 
-    public long add(String name) {
+    public long InstAdd(String name) {
         long id = nextId++;
         instruments.put(id, name);
         return id;

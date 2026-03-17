@@ -13,10 +13,14 @@ import java.util.stream.Collectors;
 
 public class IncidentService {
     private final IncidentRepository repository;
+    public final SampleService SampleService;
+    public final InstrumentService InstrumentService;
     private long nextId = 1;
 
-    public IncidentService(IncidentRepository repository) {
+    public IncidentService(IncidentRepository repository, SampleService SampleService, InstrumentService InstrumentService) {
         this.repository = repository;
+        this.SampleService = SampleService;
+        this.InstrumentService = InstrumentService;
     }
 
     public Incident add(String title, IncidentSeverity severity, String description, String owner) {
