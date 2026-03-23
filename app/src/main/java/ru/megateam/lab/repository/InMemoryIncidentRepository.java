@@ -6,22 +6,33 @@ import ru.megateam.lab.domain.Incident;
 import java.util.*;
 
 public class InMemoryIncidentRepository implements IncidentRepository {
-    private final Map<Long, Incident> storage = new TreeMap<>();
+
+    private final Map<Long, Incident> storage = new HashMap<>(); //нам нужен hashmap
+    //storage—HashMap, где ключ=Long (id инцидента), значение=объект Incident
+    private long nextIncidentId = 1L;
+    //счетчик айди
 
     private final Map<Long, List<Comment>> comments = new HashMap<>();
+    private long nextCommentId = 1L;
 
+    @Override
     public long addComment(long incidentId, Comment comment) {
+        long id = nextCommentId++;
+        comment.setId(id);
         comments.computeIfAbsent(incidentId, k -> new ArrayList<>()).add(comment);
-        return comment.id;
+        return id;
     }
 
+    @Override
     public List<Comment> getComments(long incidentId) {
         return comments.getOrDefault(incidentId, List.of());
     }
 
     @Override
     public Incident add(Incident incident) {
-        storage.put(incident.getId(), incident);
+        long id = nextIncidentId++; //берем текущее id
+        incident.setId(id); //записывает id в инцидент
+        storage.put(id, incident); // в хэшмап идет уже инцидент с id
         return incident;
     }
 

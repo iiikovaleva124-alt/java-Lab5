@@ -28,8 +28,9 @@ public class IncidentService {
         Incident incident = new Incident(nextId++, title, description, severity,
                 IncidentStatus.NEW, 0L, 0L, owner != null ? owner : "SYSTEM",
                 Instant.now(), Instant.now());
-        return repository.add(incident);
+        return repository.add(incident); //сохраняем в hashmap
     }
+    // Создаём инцидент через полный конструктор
 
     public List<Incident> list(Optional<IncidentStatus> status, Optional<Integer> lastN) {
         List<Incident> all = repository.getAll();
