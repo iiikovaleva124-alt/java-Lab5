@@ -12,46 +12,47 @@ import java.util.stream.Collectors;
 
 
 public class IncidentService {
-    private final IncidentRepository repository;
+    private final IncidentRepository repository; //внутри hashmap
     private long nextId = 1;
 
     public IncidentService(IncidentRepository repository) {
         this.repository = repository;
-    }
+    } // конструктор принимает репозиторий
 
     public Incident add(String title, IncidentSeverity severity, String description, String owner) {
         if (severity == null) severity = IncidentSeverity.LOW;
         Incident incident = new Incident(nextId++, title, description, severity,
                 IncidentStatus.NEW, 0L, 0L, owner != null ? owner : "SYSTEM",
                 Instant.now(), Instant.now());
-        return repository.add(incident);
+        return repository.add(incident); //сохраняем в hashmap
     }
+    // Создаём инцидент через полный конструктор
 
-    public List<Incident> list(Optional<IncidentStatus> status, Optional<Integer> lastN) {
-        List<Incident> all = repository.getAll();
-        List<Incident> filtered = all;
+    public List<Incident> list(Optional<IncidentStatus> status, Optional<Integer> lastN) { // вводят статус и кол-во (могут быть путсими)
+        List<Incident> all = repository.getAll(); // берем все инциденты
+        List<Incident> filtered = all; //рабочий список
 
-        if (status.isPresent()) {
-            filtered = filtered.stream()
-                    .filter(i -> i.status == status.get())
-                    .collect(Collectors.toList());
+        if (status.isPresent()) { // проверка на пустоту статуса
+            filtered = filtered.stream() //создаем stream-
+                    .filter(i -> i.status == status.get()) // идет фильтрация: инцидент, статус которого совпадает с заданным
+                    .collect(Collectors.toList()); // и они попадают в список
         }
 
         if (lastN.isPresent()) {
             filtered = filtered.stream()
-                    .sorted((a, b) -> Long.compare(b.getId(), a.getId()))
-                    .limit(lastN.get())
+                    .sorted((a, b) -> Long.compare(b.getId(), a.getId())) // берем пару инцидентов и сравнивание их id и выбираем какой был раньше
+                    .limit(lastN.get()) // И так до N-числа
                     .collect(Collectors.toList());
         }
 
-        return filtered;
+        return filtered; // возвращаем готовый список
     }
 
     public Optional<Incident> getById(long id) {
         return repository.getById(id);
     }
 
-    public Optional<Incident> update(long id, String field, String value) {
+    public Optional<Incident> update(long id, String field, String value) {// update
         return repository.getById(id).map(incident -> {
             if (incident.getStatus() == IncidentStatus.CLOSED) {
                 throw new IllegalArgumentException("You can not update closed incident");
@@ -62,7 +63,7 @@ public class IncidentService {
                 case "description" -> incident.setDescription(value);
                 case "severity" -> {
                     try { incident.setSeverity(IncidentSeverity.valueOf(value.toUpperCase()));
-                } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Ошибка: Серьезности '" + value + "' не существует!");
                     }
                 }
@@ -130,7 +131,7 @@ public class IncidentService {
             throw new IllegalArgumentException("Comment 1-512 chars");
         }
 
-        Comment comment = new Comment(nextCommentId++, text, Instant.now(), owner);
+        Comment comment = new Comment(nextCommentId++, text, owner);
         return repository.addComment(incidentId, comment);
     }
 
