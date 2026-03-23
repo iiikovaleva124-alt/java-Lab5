@@ -7,10 +7,10 @@ public final class Comment {
     private String text;
     private Instant createdAt;
     private String ownerUsername;
-    private long incidentId;
+    private long incidentId; // вроде привязывается в образце, а не наоборот. убрать
 
     //заменить на private
-    public Comment(long id, String text, String ownerUsername) {
+    public Comment(long id, String text, Instant createdAt, String ownerUsername) {
         this.id = id;
         this.text = text;
         this.createdAt = Instant.now();
