@@ -40,7 +40,7 @@ public class IncidentCLI {
             }
 
             if (input.equals("exit")) {
-                System.out.println("До свидания!");
+                System.out.println("Thanks!");
                 break;
             }
 
