@@ -19,8 +19,11 @@ public final class Comment {
     //нужны ли тут геттеры и сеттеры?
 
     public static int maxCommentLength = 512;
-
+    //геттеры
     public long getId() { return id; }
+    public String getText() { return text; }
+    public Instant getCreatedAt() { return createdAt; }
+    public String getOwnerUsername() { return ownerUsername; }
 
     public void setId(long id) {
         this.id = id;
