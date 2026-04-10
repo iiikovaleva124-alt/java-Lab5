@@ -94,7 +94,7 @@ public class IncidentCli {
         try {
             severity = IncidentSeverity.valueOf(severityStr);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Incorrect severity, please use LOW/MEDIUM/HIGH");
+            throw new IllegalArgumentException("Incorrect severity, please use LOW/MEDIUM/HIGH. Please try to create an incident again");
         }
 
         System.out.print("Description (can be empty, max 1024 chars): ");
@@ -143,7 +143,7 @@ public class IncidentCli {
             return;
         }
 
-        // 6. Выводим таблицу
+        // Выводим таблицу
         System.out.printf("%-4s %-8s %-15s %s%n", "ID", "Severity", "Status", "Title");
         for (Incident inc : list) {
             System.out.printf("%-4d %-8s %-15s %s%n",
@@ -353,9 +353,9 @@ public class IncidentCli {
         }
 
         // если комментарии есть, то выводим таблицу
-        System.out.printf("%-4s %-22s %s%n", "ID", "Time", "Text");
+        System.out.printf("%-6s %-30s %-40s%n", "ID", "Time", "Text");
         for (Comment c : comments) { //цикл: "для каждого комментария с":"из списка comments"-выведи строку; короче достает их по одному
-            System.out.printf("%-4d %-22s %s%n",
+            System.out.printf("%-6d %-30s %-40s%n",
                     c.getId(), c.getCreatedAt(), c.getText());
         }
     }
