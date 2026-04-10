@@ -6,7 +6,6 @@ import ru.megateam.lab.repository.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,8 +109,10 @@ public class IncidentService {
         }).orElse(false);
     }
 
-    public boolean close(long id) {
-        return update(id, "status", "CLOSED").isPresent();
+    public Optional<Incident> close(long id) {
+
+        IncidentExists(id);
+        return update(id, "status", "CLOSED");
     }
 
     public Map<IncidentSeverity, Long> report(LocalDate from, LocalDate to) {
@@ -142,4 +143,11 @@ public class IncidentService {
     public List<Comment> getComments(long incidentId) {
         return repository.getComments(incidentId);
     }
+
+    private void IncidentExists(long id) {
+        if (repository.getById(id).isEmpty()) {
+            throw new IllegalArgumentException("Incident " + id + " does not exist");
+        }
+    }
+
 }

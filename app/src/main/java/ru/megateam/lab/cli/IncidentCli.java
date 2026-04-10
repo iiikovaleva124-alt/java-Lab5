@@ -54,9 +54,9 @@ public class IncidentCli {
             } catch (IllegalArgumentException e) {
                 System.out.println("Error: " + e.getMessage());
             } catch (DateTimeParseException e) {
-                System.out.println("Incorrect date (используйте YYYY-MM-DD)");
+                System.out.println("Incorrect date (use YYYY-MM-DD)");
             } catch (Exception e) {
-                System.out.println("Sorry, we can not do this");
+                System.out.println("Sorry, i can not do this");
             }
         }
     }
@@ -375,7 +375,6 @@ public class IncidentCli {
         // вызываем сервис, который закроет инцидент
         incidentService.close(id);
 
-        System.out.println("OK status=CLOSED");
     }
     //показывает инциденты по введенному времени
     private void handleIncReport(String args) {
