@@ -35,8 +35,15 @@ public class IncidentCli {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
 
-            if (input.isEmpty()) {
-                continue;
+            switch (input) {
+                case "":
+                    continue;
+                case "exit":
+                    System.out.println("Thanks!");
+                    break label;
+                case "help":
+                    printHelp();
+                    continue;
             }
 
             if (input.equals("exit")) {
