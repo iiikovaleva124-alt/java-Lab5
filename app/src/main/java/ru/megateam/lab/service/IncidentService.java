@@ -127,7 +127,7 @@ public class IncidentService {
     private long nextCommentId = 1L;
 
     public long addComment(long incidentId, String text, String owner) {
-        if (!repository.getById(incidentId).isPresent()) {
+        if (repository.getById(incidentId).isEmpty()) {
             throw new IllegalArgumentException("Incident not found");
         }
         if (text.trim().isEmpty() || text.length() > Comment.maxCommentLength) {

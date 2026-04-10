@@ -31,6 +31,7 @@ public class IncidentCli {
         System.out.println("Type 'help' for list of methods.\n");
         System.out.println("Type 'exit' to stop.\n");
 
+        label:
         while (true) {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
@@ -44,16 +45,6 @@ public class IncidentCli {
                 case "help":
                     printHelp();
                     continue;
-            }
-
-            if (input.equals("exit")) {
-                System.out.println("Thanks!");
-                break;
-            }
-
-            if (input.equals("help")) {
-                printHelp();
-                continue;
             }
 
             try {
