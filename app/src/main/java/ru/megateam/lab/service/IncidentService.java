@@ -73,9 +73,6 @@ public class IncidentService {
                 }
                 case "status" -> {
                     IncidentStatus newStatus = IncidentStatus.valueOf(value.toUpperCase());
-                    if (incident.getStatus() == IncidentStatus.CLOSED) {
-                        throw new IllegalArgumentException("You can not change status in closed incident");
-                    }
                     try {
                         incident.setStatus(IncidentStatus.valueOf(value.toUpperCase()));
                     } catch (IllegalArgumentException e) {
