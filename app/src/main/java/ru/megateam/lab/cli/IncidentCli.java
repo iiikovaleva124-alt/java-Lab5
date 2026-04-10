@@ -198,7 +198,7 @@ public class IncidentCli {
 
         //проверяем что пользователь ввёл оба значения
         if (tokens.length < 2) {
-            System.out.println("Error: Usage: inc_update <id> field=value");
+            System.out.println("Error: Usage: inc_update id field=value");
             return;
         }
 
@@ -329,7 +329,7 @@ public class IncidentCli {
     // метод показывает все комментарии к заданному инциденту
     private void handleCommentList(String args) {
         if (args.isEmpty()) {
-            System.out.println("Error: Usage: inc_comment_list <incident_id>");
+            System.out.println("Error: Usage: inc_comment_list incident_id");
             return;
         }
 
@@ -340,6 +340,8 @@ public class IncidentCli {
             System.out.println("Error: incident_id must be a number");
             return;
         }
+
+        incidentService.IncidentExists(incidentId);
 
         // получаем список комментариев из сервиса
         List<Comment> comments = incidentService.getComments(incidentId);
@@ -360,7 +362,7 @@ public class IncidentCli {
     //метод закрывает инцидент -ставит статус closed
     private void handleIncClose(String args) {
         if (args.isEmpty()) {
-            System.out.println("Error: Usage: inc_close <id>");
+            System.out.println("Error: Usage: inc_close id");
             return;
         }
 
@@ -442,21 +444,21 @@ public class IncidentCli {
 
     private void printHelp() {
         System.out.println("\nIncident methods");
-        System.out.println("  inc_add                     - add an incident");
-        System.out.println("  inc_list [--status STATUS] [--last N] - list of incidents by status and date");
-        System.out.println("  inc_show <id>               - show incident by id");
-        System.out.println("  inc_update <id> field=value - update field in incident");
-        System.out.println("  inc_link_sample <inc_id> <sample_id> - link a sample");
-        System.out.println("  inc_link_instrument <inc_id> <inst_id> - link an instrument");
-        System.out.println("  inc_comment_add <inc_id>    - add a comment");
-        System.out.println("  inc_comment_list <inc_id>   - list of comments");
-        System.out.println("  inc_close <id>              - close incident");
-        System.out.println("  inc_report [--from] [--to]  - report of incidents between dates");
-        System.out.println("  sample_add                  - create a sample");
-        System.out.println("  inst_add                    - add an instrument");
+        System.out.println("  inc_add                                       - add an incident");
+        System.out.println("  inc_list --status STATUS --last N             - list of incidents by status and date");
+        System.out.println("  inc_show id                                   - show incident by id");
+        System.out.println("  inc_update id field=value                     - update field in incident");
+        System.out.println("  inc_link_sample inc_id sample_id              - link a sample");
+        System.out.println("  inc_link_instrument inc_id inst_id            - link an instrument");
+        System.out.println("  inc_comment_add inc_id                        - add a comment");
+        System.out.println("  inc_comment_list inc_id                       - list of comments");
+        System.out.println("  inc_close id                                  - close incident");
+        System.out.println("  inc_report --from YYYY-MM-DD --to YYYY-MM-DD  - report of incidents between dates");
+        System.out.println("  sample_add                                    - create a sample");
+        System.out.println("  inst_add                                      - add an instrument");
         System.out.println();
-        System.out.println("  help                        - type to get info about all commands");
-        System.out.println("  exit                        - type if you want to exit");
+        System.out.println("  help                                          - type to get info about all commands");
+        System.out.println("  exit                                          - type if you want to exit");
         System.out.println();
     }
 }

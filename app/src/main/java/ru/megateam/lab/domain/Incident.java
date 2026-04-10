@@ -1,6 +1,7 @@
 package ru.megateam.lab.domain;
 
 import java.time.Instant;
+
 public final class Incident {
     private long id;
     public String title;
@@ -115,6 +116,9 @@ public final class Incident {
     public void updatedAt() {
 
         this.updatedAt = Instant.now();
+        //updated: 2026-04-10T10:42:48.399476Z вот в таком формате
+        // Z = UTC
+        //.399476 = микросекунды (доли секунды)
     }
 
     @Override // для нормального ввода

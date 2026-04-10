@@ -56,6 +56,7 @@ public class IncidentService {
     }
 
     public Optional<Incident> update(long id, String field, String value) {
+        IncidentExists(id);
         return repository.getById(id).map(incident -> {
             if (incident.getStatus() == IncidentStatus.CLOSED) {
                 throw new IllegalArgumentException("You can not update closed incident");
@@ -144,7 +145,7 @@ public class IncidentService {
         return repository.getComments(incidentId);
     }
 
-    private void IncidentExists(long id) {
+    public void IncidentExists(long id) {
         if (repository.getById(id).isEmpty()) {
             throw new IllegalArgumentException("Incident " + id + " does not exist");
         }
