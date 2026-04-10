@@ -311,6 +311,8 @@ public class IncidentCli {
             return;
         }
 
+        incidentService.IncidentExists(incidentId);
+
         //спрашиваем текст комментария у пользователя (интерактив)
         System.out.print("Comment: ");
         String text = scanner.nextLine(); //возвращает то, что написал user
