@@ -16,6 +16,7 @@ public class IncidentService {
     public final InstrumentService InstrumentService;
     private long nextId = 1;
 
+    //конструктор
     public IncidentService(IncidentRepository repository, SampleService SampleService, InstrumentService InstrumentService) {
         this.repository = repository;
         this.SampleService = SampleService;
