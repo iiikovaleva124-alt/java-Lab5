@@ -114,13 +114,13 @@ public class IncidentCli {
         // ищем --status и --last (проходим по всем словам в массиве)
         for (int i = 0; i < tokens.length; i++) {
 
-            if ("--status".equals(tokens[i]) && i + 1 < tokens.length) {
+            if ("--status".equals(tokens[i]) && i + 1 < tokens.length) {//флаг может меняться
                 // если текущее слвоо - --status, а следующее слово есть
                 try {
                     status = IncidentStatus.valueOf(tokens[i + 1].toUpperCase());// то мы берем след слово, превращаем в верхний регистр, превращаем в строку из enum
                 } catch (IllegalArgumentException e) { //если user написал значения, которого нет в enum
                     throw new IllegalArgumentException(
-                            "Unknown status '" + tokens[i + 1] + "'. Use: NEW, INVESTIGATING, CLOSED");
+                            "Unknown status '" + tokens[i + 1] + "'. Use: NEW, INVESTIGATING, CLOSED");//имеющиеся значения из  enum
                 }
                 i++;  // пропускаем следующее слово, тк мы его уже прочитали
 

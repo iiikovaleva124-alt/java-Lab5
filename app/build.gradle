@@ -31,7 +31,6 @@ dependencies {
 }
 
 tasks.named('run') {
-    standardInput = System.in  // ← Подключаем stdin для Scanner
+    standardInput = System.in
 }
-
 
