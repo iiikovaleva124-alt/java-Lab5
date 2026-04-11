@@ -11,13 +11,16 @@ application {
     mainClass = "ru.megateam.lab.cli.Main"
 }
 
+run {
+    standardInput = System.in
+}
 
 group = 'ru.megateam.lab'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
@@ -35,7 +38,9 @@ tasks.named('test') {
 }
 
 tasks.named('run') {
-    standardInput = System.in  // ← Подключаем stdin для Scanner
+    standardInput = System.in
 }
+
+
 
 

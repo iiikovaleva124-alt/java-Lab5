@@ -14,19 +14,22 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
     private final Map<Long, List<Comment>> comments = new HashMap<>();
     private long nextCommentId = 1L;
-
+    //метод добавляет ком к инциденту и возвращает id кома
     @Override
     public long addComment(long incidentId, Comment comment) {
         long id = nextCommentId++;
-        comment.setId(id);
-        comments.computeIfAbsent(incidentId, k -> new ArrayList<>()).add(comment);
+        comment.setId(id); //у переданного comment устанавливается поле id
+        comments.computeIfAbsent(incidentId, k -> new ArrayList<>()).add(comment); //->- для параметра k выполнить...
+        // computerIfAbsent ищет в карте comments ключ, если его нет, то создает arraylist
         return id;
     }
-
+    // в скобках параметр - id инцидента, чьи комментарии мы хотим получить
     @Override
     public List<Comment> getComments(long incidentId) {
+
         return comments.getOrDefault(incidentId, List.of());
     }
+    // list.of возвращает пустой список, а не null
 
     @Override
     public Incident add(Incident incident) {
@@ -43,6 +46,7 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
     @Override
     public List<Incident> getAll() {
+
         return new ArrayList<>(storage.values());
     }
 
@@ -54,6 +58,7 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
     @Override
     public boolean remove(long id) {
+
         return storage.remove(id) != null;
     }
 }

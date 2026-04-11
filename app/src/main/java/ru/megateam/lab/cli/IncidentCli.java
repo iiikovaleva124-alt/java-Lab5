@@ -446,7 +446,7 @@ public class IncidentCli {
         System.out.println("\nIncident methods");
         System.out.println("  inc_add                                       - add an incident");
         System.out.println("  inc_list --status STATUS --last N             - list of incidents by status and date");
-        System.out.println("  inc_show id                                   - show incident by id");
+        System.out.println("  inc_show id                                   - show n incident by id");
         System.out.println("  inc_update id field=value                     - update field in incident");
         System.out.println("  inc_link_sample inc_id sample_id              - link a sample");
         System.out.println("  inc_link_instrument inc_id inst_id            - link an instrument");
