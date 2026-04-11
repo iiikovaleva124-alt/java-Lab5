@@ -14,17 +14,22 @@ public final class Incident {
     public Instant createdAt;
     public Instant updatedAt;
     //сделать поля сделать private
-    public Incident(long id, String title, String description, IncidentSeverity severity, IncidentStatus status,long sampleId, long instrumentId, String ownerUsername,Instant createdAt, Instant updatedAt){ //констурктор
+    public Incident(long id, String title, String description,
+                    IncidentSeverity severity, IncidentStatus status,
+                    long sampleId, long instrumentId, String ownerUsername,
+                    Instant createdAt, Instant updatedAt) {
         this.id = id;
-        this.title = title;
+
+        setTitle(title);
         setDescription(description);
         setSeverity(severity);
-        this.status = IncidentStatus.NEW;
-        this.sampleId = sampleId;
-        this.instrumentId = instrumentId;
-        this.ownerUsername = ownerUsername;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        setStatus(status);
+        setSampleId(sampleId);
+        setInstrumentId(instrumentId);
+        setOwnerUsername(ownerUsername);
+
+        this.createdAt = createdAt != null ? createdAt : Instant.now();
+        this.updatedAt = updatedAt != null ? updatedAt : Instant.now();
     }
 
     //геттеры
@@ -54,7 +59,6 @@ public final class Incident {
         this.updatedAt = Instant.now();
     } //может добавить his.updatedAt = Instant.now(); - при изменении обновляем время
 
-    private static final int MAX = 1024; //?
 
     public void setDescription(String description) {
                 if (description != null && description.length() > maxDescriptionLength) {

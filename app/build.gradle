@@ -1,25 +1,19 @@
-
-
 plugins {
     id 'java'
     id 'application'
 }
 
-
-
 application {
     mainClass = "ru.megateam.lab.cli.Main"
 }
-
 
 group = 'ru.megateam.lab'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_17  // ← Рекомендую 17 или 21 (24 ещё нет)
+    targetCompatibility = JavaVersion.VERSION_17
 }
-
 
 repositories {
     mavenCentral()
@@ -34,3 +28,6 @@ tasks.named('run') {
     standardInput = System.in
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
