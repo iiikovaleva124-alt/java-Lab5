@@ -20,4 +20,23 @@ import java.util.Map;
         public String getName(long id) {
             return samples.get(id);
         }
+
+        public Map<Long, String> getAll() {
+            return new HashMap<>(samples);
+        }
+
+        public void replaceAll(Map<Long, String> newSamples) {
+            samples.clear();
+
+            long maxId = 0;
+            for (Map.Entry<Long, String> entry : newSamples.entrySet()) {
+                samples.put(entry.getKey(), entry.getValue());
+                if (entry.getKey() > maxId) {
+                    maxId = entry.getKey();
+                }
+            }
+
+            nextId = maxId + 1;
+        }
     }
+

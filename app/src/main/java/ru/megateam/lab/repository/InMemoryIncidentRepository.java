@@ -2,7 +2,8 @@ package ru.megateam.lab.repository;
 
 import ru.megateam.lab.domain.Comment;
 import ru.megateam.lab.domain.Incident;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.*;
 
 public class InMemoryIncidentRepository implements IncidentRepository {
@@ -61,4 +62,53 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
         return storage.remove(id) != null;
     }
+
+    @Override
+    public void replaceAll(List<Incident> incidents) {
+        storage.clear(); //очищает карту
+
+        long maxId = 0;
+        for (Incident incident : incidents) { //берем по 1 инциденту из листа
+            storage.put(incident.getId(), incident);
+
+            if (incident.getId() > maxId) {
+                maxId = incident.getId();
+                //если текущий инцидент имеет id больше найденного максимума, то обновляем максимум
+            }
+        }
+
+        nextIncidentId = maxId + 1;
+    }
+
+    @Override
+    public Map<Long, List<Comment>> getAllCommentsMap() {
+        Map<Long, List<Comment>> copy = new HashMap<>();
+
+        for (Map.Entry<Long, List<Comment>> entry : comments.entrySet()) {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+
+        return copy;
+    }
+
+    @Override
+    public void replaceAllComments(Map<Long, List<Comment>> newComments) {
+        comments.clear();
+
+        long maxCommentId = 0;
+
+        for (Map.Entry<Long, List<Comment>> entry : newComments.entrySet()) {
+            List<Comment> copiedList = new ArrayList<>(entry.getValue());
+            comments.put(entry.getKey(), copiedList);
+
+            for (Comment comment : copiedList) {
+                if (comment.getId() > maxCommentId) {
+                    maxCommentId = comment.getId();
+                }
+            }
+        }
+
+        nextCommentId = maxCommentId + 1;
+    }
+
 }

@@ -2,6 +2,7 @@ package ru.megateam.lab.cli;
 
 import ru.megateam.lab.domain.*;
 import ru.megateam.lab.service.*;
+import ru.megateam.lab.persistence.*;
 
 import java.time.*;
 import java.time.format.DateTimeParseException;
@@ -14,15 +15,18 @@ public class IncidentCli {
     private final IncidentService incidentService;
     private final SampleService sampleService;
     private final InstrumentService instrumentService;
+    private final FileService fileService;
     private final Scanner scanner;
     private final String currentUser = "SYSTEM";
 
     public IncidentCli(IncidentService incidentService,
                        SampleService sampleService,
-                       InstrumentService instrumentService) {
+                       InstrumentService instrumentService,
+                       FileService fileService) {
         this.incidentService = incidentService;
         this.sampleService = sampleService;
         this.instrumentService = instrumentService;
+        this.fileService = fileService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -77,6 +81,8 @@ public class IncidentCli {
             case "inc_report" -> handleIncReport(args);
             case "sample_add" -> handleSampleAdd(); // есть соответствующая в sample service
             case "inst_add" -> handleInstAdd(); //есть соответствующая в instrument service
+            case "save" -> handleSave(args);
+            case "load" -> handleLoad(args);
 
             default -> throw new IllegalArgumentException("Unknown command: " + command);
         }
@@ -442,6 +448,33 @@ public class IncidentCli {
         System.out.println("OK instrument_id=" + id);
     }
 
+    private void handleSave(String args) {
+        // если путь не указан, используем файл по умолчанию
+        String path = args.isEmpty() ? "data.json" : args.trim();
+
+        try {
+            fileService.save(path);
+            System.out.println("OK saved to " + path);
+        } catch (Exception e) {
+            System.out.println("Error saving: " + e.getMessage());
+        }
+    }
+
+    private void handleLoad(String args) {
+        String path = args.isEmpty() ? "data.json" : args.trim();
+
+        try {
+            fileService.load(path);
+            System.out.println("OK loaded from " + path);
+        } catch (IllegalArgumentException e) {
+            // файл прочитан, но не прошёл валидацию
+            System.out.println("File is invalid: " + e.getMessage());
+        } catch (Exception e) {
+            // проблемы с файлом
+            System.out.println("Error loading: " + e.getMessage());
+        }
+    }
+
     private void printHelp() {
         System.out.println("\nIncident methods");
         System.out.println("  inc_add                                       - add an incident");
@@ -456,6 +489,10 @@ public class IncidentCli {
         System.out.println("  inc_report --from YYYY-MM-DD --to YYYY-MM-DD  - report of incidents between dates");
         System.out.println("  sample_add                                    - create a sample");
         System.out.println("  inst_add                                      - add an instrument");
+        System.out.println();
+        System.out.println("File methods");
+        System.out.println("  save [path]                                   - save data to file (default data.json)");
+        System.out.println("  load [path]                                   - load data from file (default data.json)");
         System.out.println();
         System.out.println("  help                                          - type to get info about all commands");
         System.out.println("  exit                                          - type if you want to exit");

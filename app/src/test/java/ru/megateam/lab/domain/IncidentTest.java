@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class IncidentTest {
 
     @Test
+    //создается новый инциден для тестов
     void testValidIncident() {
         Incident incident = new Incident(
                 1L,
@@ -21,16 +22,16 @@ class IncidentTest {
                 Instant.now()
         );
 
-        assertEquals("Test Title", incident.getTitle());
+        assertEquals("Test Title", incident.getTitle()); //метод из junit, сравнивает
         assertEquals(IncidentSeverity.HIGH, incident.getSeverity());
     }
 
     @Test
     void testTitleTooLong() {
-        String longTitle = "A".repeat(129);
+        String longTitle = "T".repeat(130);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new Incident(1L, longTitle, "Desc", IncidentSeverity.LOW,
+            new Incident(1L, longTitle, "Description", IncidentSeverity.LOW,
                     IncidentStatus.NEW, 0L, 0L, "SYSTEM",
                     Instant.now(), Instant.now());
         });
@@ -39,7 +40,7 @@ class IncidentTest {
     @Test
     void testEmptyTitle() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Incident(1L, "", "Desc", IncidentSeverity.LOW,
+            new Incident(1L, "", "Description", IncidentSeverity.LOW,
                     IncidentStatus.NEW, 0L, 0L, "SYSTEM",
                     Instant.now(), Instant.now());
         });
@@ -48,7 +49,7 @@ class IncidentTest {
     @Test
     void testNegativeSampleId() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Incident(1L, "Title", "Desc", IncidentSeverity.LOW,
+            new Incident(1L, "Title", "Description", IncidentSeverity.LOW,
                     IncidentStatus.NEW, -1L, 0L, "SYSTEM",
                     Instant.now(), Instant.now());
         });

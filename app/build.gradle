@@ -11,7 +11,7 @@ group = 'ru.megateam.lab'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17  // ← Рекомендую 17 или 21 (24 ещё нет)
+    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
@@ -30,4 +30,13 @@ tasks.named('run') {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
 }
