@@ -97,10 +97,10 @@ public class FileValidator {
         }
     }
 
-    private void validateSamples(Map<Long, String> samples, List<String> errors) {
-        for (Map.Entry<Long, String> entry : samples.entrySet()) {
-            Long id = entry.getKey();
-            String name = entry.getValue();
+    private void validateSamples(List<Sample> samples, List<String> errors) {
+        for (Sample sample : samples) {
+            Long id = sample.getId();
+            String name = sample.getName();
 
             if (id == null || id <= 0) {
                 errors.add("Некорректный sample id=" + id);
