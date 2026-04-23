@@ -23,12 +23,16 @@ public class IncidentService {
         this.InstrumentService = InstrumentService;
     }
 
-    public Incident add(String title, IncidentSeverity severity, String description, String owner) {
-        if (severity == null) severity = IncidentSeverity.LOW;
-        Incident incident = new Incident(nextId++, title, description, severity,
-                IncidentStatus.NEW, 0L, 0L, owner != null ? owner : "SYSTEM",
-                Instant.now(), Instant.now());
-        return repository.add(incident); //сохраняем в hashmap
+    public Incident add(String title, IncidentSeverity severity,
+                        String description, String owner,
+                        long sampleId, long instrumentId) {
+        Incident incident = new Incident(
+                nextId++, title, description, severity,
+                IncidentStatus.NEW, sampleId, instrumentId, owner,
+                Instant.now(), Instant.now()
+        );
+        repository.add(incident);
+        return incident;
     }
     // Создаём инцидент через полный конструктор
 
