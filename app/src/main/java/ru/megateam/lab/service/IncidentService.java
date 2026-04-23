@@ -17,10 +17,21 @@ public class IncidentService {
     private long nextId = 1;
 
     //конструктор
-    public IncidentService(IncidentRepository repository, SampleService SampleService, InstrumentService InstrumentService) {
-        this.repository = repository;
-        this.SampleService = SampleService;
-        this.InstrumentService = InstrumentService;
+    public IncidentService(IncidentRepository repository,
+                               SampleService sampleService,
+                               InstrumentService instrumentService,
+                               FileStorage fileStorage,
+                               FileValidator validator) {
+            this.repository = repository;
+            this.sampleService = sampleService;
+            this.instrumentService = instrumentService;
+            this.fileStorage = fileStorage;
+            this.validator = validator;
+        }
+
+    public Incident add(String title, IncidentSeverity severity,
+                        String description, String owner) {
+        return add(title, severity, description, owner, 0, 0);
     }
 
     public Incident add(String title, IncidentSeverity severity,
