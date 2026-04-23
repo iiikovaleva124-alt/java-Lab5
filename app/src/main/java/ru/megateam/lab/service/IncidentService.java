@@ -1,7 +1,9 @@
 package ru.megateam.lab.service;
 
 import ru.megateam.lab.domain.*;
-import ru.megateam.lab.repository.*;
+import ru.megateam.lab.persistence.FileStorage;
+import ru.megateam.lab.persistence.FileValidator;
+import ru.megateam.lab.repository.IncidentRepository;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -12,8 +14,11 @@ import java.util.stream.Collectors;
 
 public class IncidentService {
     private final IncidentRepository repository;
-    public final SampleService SampleService;
-    public final InstrumentService InstrumentService;
+    private final SampleService sampleService;
+    private final InstrumentService instrumentService;
+    private final FileStorage fileStorage;
+    private final FileValidator validator;
+
     private long nextId = 1;
 
     //конструктор
@@ -186,4 +191,11 @@ public class IncidentService {
         }
     }
 
+    public List<Incident> getAllIncidents() {
+        return repository.getAll();
+    }
+
+    public void deleteIncident(long id) {
+        repository.deleteById(id);
+    }
 }
