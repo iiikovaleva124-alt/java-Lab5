@@ -2,8 +2,10 @@ package ru.megateam.lab.persistence;
 
 import ru.megateam.lab.domain.Comment;
 import ru.megateam.lab.domain.Incident;
+import ru.megateam.lab.domain.Instrument;
 import ru.megateam.lab.domain.Sample;
 
+import javax.swing.event.ListDataEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,22 +14,26 @@ import java.util.Map;
 public class AppState {
     //поля, списки, потому что так удобнее хранить данные
     private List<Incident> incidents;
-    private Map<Long, String> samples;
+    private List<Sample> samples;
     private Map<Long, List<Comment>> comments;
+    private List<Instrument> instruments;
 
     //пустой констурктор:
     public AppState() {
         this.incidents = new ArrayList<>();
-        this.samples = new HashMap<>();
+        this.samples = new ArrayList<>();
+        this.instruments = new ArrayList<>();
         this.comments = new HashMap<>();
     }
 
     //конструктор со списками, чтобы быстро собрать состояния из репозитория
     public AppState(List<Incident> incidents,
-                    Map<Long, String> samples,
+                    List<Sample> samples,
+                    List<Instrument> instruments,
                     Map<Long, List<Comment>> comments) {
         this.incidents = incidents != null ? new ArrayList<>(incidents) : new ArrayList<>();
-        this.samples = samples != null ? new HashMap<>(samples) : new HashMap<>();
+        this.samples = samples != null ? new ArrayList<>(samples) : new ArrayList<>();
+        this.instruments = instruments != null ? new ArrayList<>(instruments) : new ArrayList<>();
         this.comments = comments != null ? copyCommentsMap(comments) : new HashMap<>();
     }
 
@@ -39,13 +45,15 @@ public class AppState {
         this.incidents = incidents != null ? new ArrayList<>(incidents) : new ArrayList<>();
     }
 
-    public Map<Long, String> getSamples() {
+    public List<Sample> getSamples() {
         return samples;
     }
 
-    public void setSamples(Map<Long, String> samples) {
-        this.samples = samples != null ? new HashMap<>(samples) : new HashMap<>();
+    public void setSamples(List<Sample> samples) {
+        this.samples = samples != null ? new ArrayList<>(samples) : new ArrayList<>();
     }
+
+    public List<Instrument> getInstruments() {return instruments; }
 
     public Map<Long, List<Comment>> getComments() {
         return comments;
