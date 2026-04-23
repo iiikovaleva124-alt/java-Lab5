@@ -90,6 +90,28 @@ public class IncidentService {
         });
     }
 
+    public Optional<Incident> updateFull(long id, String title, String description,
+                                         IncidentSeverity severity, IncidentStatus status,
+                                         long sampleId, long instrumentId) {
+        IncidentExists(id);
+
+        return repository.getById(id).map(incident -> {
+            if (incident.getStatus() == IncidentStatus.CLOSED) {
+                throw new IllegalArgumentException("You can not update closed incident");
+            }
+
+            incident.setTitle(title);
+            incident.setDescription(description);
+            incident.setSeverity(severity);
+            incident.setStatus(status);
+            incident.setSampleId(sampleId);
+            incident.setInstrumentId(instrumentId);
+            incident.updatedAt();
+
+            return repository.update(incident);
+        });
+    }
+
     public boolean linkSample(long incidentId, long sampleId) {
         return repository.getById(incidentId).map(inc -> {
             inc.setSampleId(sampleId);
