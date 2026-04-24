@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.megateam.lab.service.*;
 import ru.megateam.lab.repository.InMemoryIncidentRepository;
+import ru.megateam.lab.persistence.*;
 
 
 import java.util.Optional;
