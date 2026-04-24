@@ -9,7 +9,8 @@ public class InstrumentService {
 
     public long InstAdd(String name) {
         long id = nextId++;
-        instruments.put(id, name);
+        Instrument instrument = new Instrument(id, name);
+        instruments.put(id, instrument);
         return id;
     }
 
