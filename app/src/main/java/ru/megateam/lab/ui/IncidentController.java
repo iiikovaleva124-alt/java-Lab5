@@ -467,14 +467,20 @@ public class IncidentController {
                                 java.time.Instant.now(),
                                 java.time.Instant.now()
                         );
-                    } else { //меняем поля у существующего инцидента
-                        incident.setTitle(titleField.getText().trim());
-                        incident.setDescription(descArea.getText().trim());
-                        incident.setSeverity(severityChoice.getValue());
-                        incident.setStatus(statusChoice.getValue());
-                        incident.setSampleId(sampleId);
-                        incident.setInstrumentId(instId);
-                        return incident;
+                    } else {
+                        //создаём новый объект с обновлёнными данными
+                        return new Incident(
+                                incident.getId(),                          // тот же ID
+                                titleField.getText().trim(),
+                                descArea.getText().trim(),
+                                severityChoice.getValue(),
+                                statusChoice.getValue(),
+                                sampleId,
+                                instId,
+                                owner,
+                                incident.getCreatedAt(),
+                                java.time.Instant.now()
+                        );
                     }
                 } catch (NumberFormatException e) {
                     showError("Validation Error", "Sample ID and Instrument ID must be numbers");
