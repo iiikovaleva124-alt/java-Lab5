@@ -2,8 +2,6 @@ package ru.megateam.lab.repository;
 
 import ru.megateam.lab.domain.Comment;
 import ru.megateam.lab.domain.Incident;
-import ru.megateam.lab.domain.Sample;
-import ru.megateam.lab.persistence.AppState;
 
 import java.util.List;
 import java.util.Map;
@@ -20,4 +18,5 @@ public interface IncidentRepository {
     Map<Long, List<Comment>> getAllCommentsMap();
     void replaceAllComments(Map<Long, List<Comment>> comments);
     void replaceAll(List<Incident> incidents);//удалить старые инциденты, записать  новые
+    void deleteById(long id);
 }
