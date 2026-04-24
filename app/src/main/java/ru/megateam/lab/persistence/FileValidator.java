@@ -2,6 +2,7 @@ package ru.megateam.lab.persistence;
 
 import ru.megateam.lab.domain.Comment;
 import ru.megateam.lab.domain.Incident;
+import ru.megateam.lab.domain.Sample;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -161,10 +162,11 @@ public class FileValidator {
         }
     }
 
-    private void validateUniqueSampleIds(Map<Long, String> samples, List<String> errors) {
+    private void validateUniqueSampleIds(List<Sample> samples, List<String> errors) {
         Set<Long> ids = new HashSet<>();
 
-        for (Long id : samples.keySet()) {
+        for (Sample sample : samples) {
+            Long id = sample.getId();
             if (id != null && !ids.add(id)) {
                 errors.add("Дублирующийся sample id=" + id);
             }
@@ -187,11 +189,16 @@ public class FileValidator {
         }
     }
 
-    private void validateIncidentSampleLinks(List<Incident> incidents, Map<Long, String> samples, List<String> errors) {
-        Set<Long> sampleIds = samples.keySet();
+    private void validateIncidentSampleLinks(List<Incident> incidents, List<Sample> samples, List<String> errors) {
+        Set<Long> sampleIds = new HashSet<>();
+        for (Sample sample : samples) {
+            if (sample.getId() > 0) {
+                sampleIds.add(sample.getId());
+            }
+        }
 
         for (Incident incident : incidents) {
-            if (incident != null && !sampleIds.contains(incident.getSampleId())) {
+            if (incident != null && incident.getSampleId() > 0 && !sampleIds.contains(incident.sampleId)) {
                 errors.add("Incident id=" + incident.getId()
                         + " ссылается на несуществующий sampleId=" + incident.getSampleId());
             }
