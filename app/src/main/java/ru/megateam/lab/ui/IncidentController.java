@@ -317,7 +317,9 @@ public class IncidentController {
         });
 
         Optional<Instrument> result = dialog.showAndWait();
-        result.ifPresent(message -> showInfo("Success", String.valueOf(message)));
+        result.ifPresent(instrument ->
+                showInfo("Success", "Instrument #" + instrument.getId() + " created successfully")
+        );
     }
 
 
