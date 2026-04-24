@@ -106,7 +106,7 @@ public class IncidentCli {
         System.out.print("Description (can be empty, max 1024 chars): ");
         String description = scanner.nextLine();
 
-        Incident incident = incidentService.add(title, severity, description, currentUser);
+        Incident incident = incidentService.add(title, severity, description, currentUser, 0L, 0L);
         System.out.println("OK incident_id=" + incident.getId());
     }
 
