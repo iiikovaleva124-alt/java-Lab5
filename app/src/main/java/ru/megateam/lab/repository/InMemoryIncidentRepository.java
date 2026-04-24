@@ -110,5 +110,8 @@ public class InMemoryIncidentRepository implements IncidentRepository {
 
         nextCommentId = maxCommentId + 1;
     }
+    public void deleteById(long id) {
+        storage.remove(id);
+    }
 
 }
