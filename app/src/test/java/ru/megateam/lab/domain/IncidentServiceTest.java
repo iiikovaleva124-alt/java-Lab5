@@ -21,7 +21,16 @@ class IncidentServiceTest {
         InMemoryIncidentRepository repository = new InMemoryIncidentRepository();
         sampleService = new SampleService();
         instrumentService = new InstrumentService();
-        incidentService = new IncidentService(repository, sampleService, instrumentService);
+        FileStorage fileStorage = new JsonFileStorage();
+        FileValidator fileValidator = new FileValidator();
+
+        incidentService = new IncidentService(
+                repository,
+                sampleService,
+                instrumentService,
+                fileStorage,
+                fileValidator
+        );
     }
 
     @Test
