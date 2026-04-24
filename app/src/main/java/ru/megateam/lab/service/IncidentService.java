@@ -181,8 +181,8 @@ public class IncidentService {
         return repository.addComment(incidentId, comment);
     }
 
-    public List<Comment> getComments(long incidentId) {
-        return repository.getComments(incidentId);
+    public Map<Long, List<Comment>> getAllComments() {
+        return repository.getAllCommentsMap();
     }
 
     public void IncidentExists(long id) {
@@ -197,5 +197,20 @@ public class IncidentService {
 
     public void deleteIncident(long id) {
         repository.deleteById(id);
+    }
+
+    public void replaceAll(List<Incident> incidents) {
+        if (incidents != null) {
+            repository.replaceAll(incidents);
+
+            //обновляем nextId чтобы новые инциденты не перезаписали загруженные
+            long maxId = incidents.stream()
+                    .mapToLong(Incident::getId)
+                    .max()
+                    .orElse(0);
+            if (maxId >= nextId) {
+                nextId = maxId + 1;
+            }
+        }
     }
 }

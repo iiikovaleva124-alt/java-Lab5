@@ -16,11 +16,14 @@ public class Main {
 
         SampleService sampleService = new SampleService();
         InstrumentService instrumentService = new InstrumentService();
-        FileStorage fileStorage = new JsonFileStorage();
         FileValidator fileValidator = new FileValidator();
-        IncidentService incidentService = new IncidentService(
+        IncidentService incidentService = new IncidentService(incidentRepository, sampleService, instrumentService, null, fileValidator);
+        FileStorage fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
+        incidentService = new IncidentService(
                 incidentRepository, sampleService, instrumentService, fileStorage, fileValidator
         );
+
+
 
         FileService fileService = new FileService(
                 incidentRepository, sampleService, instrumentService, fileStorage, fileValidator

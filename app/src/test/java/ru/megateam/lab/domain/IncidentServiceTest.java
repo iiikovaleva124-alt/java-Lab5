@@ -20,10 +20,11 @@ class IncidentServiceTest {
     @BeforeEach
     void setUp() {
         InMemoryIncidentRepository repository = new InMemoryIncidentRepository();
+        FileValidator fileValidator = new FileValidator();
+        incidentService = new IncidentService(repository, sampleService, instrumentService, null, fileValidator);
         sampleService = new SampleService();
         instrumentService = new InstrumentService();
-        FileStorage fileStorage = new JsonFileStorage();
-        FileValidator fileValidator = new FileValidator();
+        FileStorage fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
 
         incidentService = new IncidentService(
                 repository,

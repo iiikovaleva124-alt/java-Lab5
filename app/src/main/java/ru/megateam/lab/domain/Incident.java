@@ -14,6 +14,11 @@ public final class Incident {
     public Instant createdAt;
     public Instant updatedAt;
     //сделать поля сделать private
+
+    public Incident() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
     public Incident(long id, String title, String description,
                     IncidentSeverity severity, IncidentStatus status,
                     long sampleId, long instrumentId, String ownerUsername,

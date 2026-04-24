@@ -6,6 +6,10 @@ public final class Sample {
     public String name;
 
 
+    public Sample() {
+        this.name = "";
+    }
+
     public Sample(long id, String name) {
         this.id = id;
         setName(name);

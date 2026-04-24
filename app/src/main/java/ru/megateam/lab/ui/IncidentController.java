@@ -20,6 +20,7 @@ import javafx.scene.Node;
 import ru.megateam.lab.service.InstrumentService;
 import ru.megateam.lab.service.SampleService;
 
+import java.util.Map;
 import java.util.Objects;
 
 import java.io.File;
@@ -202,9 +203,23 @@ public class IncidentController {
 
         File file = fileChooser.showSaveDialog(incidentTable.getScene().getWindow()); //получает все окно, внутри получает визуал - сцена, внутри получает таблицу
         if (file != null) { //файл выбран
-            fileStorage.save(file.getAbsolutePath(), new AppState());
-            //file.getAbsolutePath() - полный путь к файлу, new AppState - объект с текущим состоянием
-            showInfo("Success", "Data saved to " + file.getName());
+            try {
+                //получаем данные из сервисов
+                List<Incident> incidents = incidentService.getAllIncidents();
+                List<Sample> samples = sampleService.getAll();
+                List<Instrument> instruments = instrumentService.getAll();
+                Map<Long, List<Comment>> comments = incidentService.getAllComments(); // если есть такой метод
+
+                //создаём AppState с данными
+                AppState state = new AppState(incidents, samples, instruments, comments);
+
+                //сохраняем заполненный объект
+                fileStorage.save(file.getAbsolutePath(), state);
+
+                showInfo("Success", "Data saved to " + file.getName());
+            } catch (Exception e) {
+                showError("Error saving file", e.getMessage());
+            }
         }
     }
     private void handleLoad() { //как сохранение

@@ -43,9 +43,10 @@ public class IncidentApplication extends Application {
             var repository = new InMemoryIncidentRepository();
             var sampleService = new SampleService();
             var instrumentService = new InstrumentService();
-            var fileStorage = new JsonFileStorage();
             var validator = new FileValidator();
-            var incidentService = new IncidentService(
+            var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator);
+            var fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
+            incidentService = new IncidentService(
                     repository, sampleService, instrumentService, fileStorage, validator
             );
 

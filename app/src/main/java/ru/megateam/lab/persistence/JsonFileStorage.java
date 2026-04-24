@@ -3,6 +3,9 @@ package ru.megateam.lab.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import ru.megateam.lab.service.IncidentService;
+import ru.megateam.lab.service.InstrumentService;
+import ru.megateam.lab.service.SampleService;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +13,17 @@ import java.io.IOException;
 public class JsonFileStorage implements FileStorage {
 
     private final ObjectMapper objectMapper;
+    private final IncidentService incidentService;
+    private final SampleService sampleService;
+    private final InstrumentService instrumentService;
 
 
-    public JsonFileStorage() {
+    public JsonFileStorage(IncidentService incidentService,
+                           SampleService sampleService,
+                           InstrumentService instrumentService) {
+        this.incidentService = incidentService;
+        this.sampleService = sampleService;
+        this.instrumentService = instrumentService;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -45,7 +56,21 @@ public class JsonFileStorage implements FileStorage {
         }
 
         try {
-            return objectMapper.readValue(file, AppState.class);
+            //загружаем данные из файла
+            AppState state = objectMapper.readValue(file, AppState.class);
+
+            // восстанавливаем данные в сервисы!
+            if (incidentService != null && state.getIncidents() != null) {
+                incidentService.replaceAll(state.getIncidents());
+            }
+            if (sampleService != null && state.getSamples() != null) {
+                sampleService.replaceAll(state.getSamples());
+            }
+            if (instrumentService != null && state.getInstruments() != null) {
+                instrumentService.replaceAll(state.getInstruments());
+            }
+
+            return state;
         } catch (IOException e) {
             throw new RuntimeException("Ошибка загрузки файла: " + e.getMessage(), e);
         }

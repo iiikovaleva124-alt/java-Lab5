@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class IncidentCli {
     private final IncidentService incidentService;
@@ -350,17 +351,19 @@ public class IncidentCli {
         incidentService.IncidentExists(incidentId);
 
         // получаем список комментариев из сервиса
-        List<Comment> comments = incidentService.getComments(incidentId);
-
+        Map<Long, List<Comment>> comments = incidentService.getAllComments();
+        List<Comment> allComments = comments.values().stream()
+                .flatMap(List::stream)
+                .toList();
         // если комментариев нет
-        if (comments.isEmpty()) {
+        if (allComments.isEmpty()) {
             System.out.println("No comments");
             return;
         }
 
         // если комментарии есть, то выводим таблицу
         System.out.printf("%-6s %-30s %-40s%n", "ID", "Time", "Text");
-        for (Comment c : comments) { //цикл: "для каждого комментария с":"из списка comments"-выведи строку; короче достает их по одному
+        for (Comment c : allComments) { //цикл: "для каждого комментария с":"из списка allComments"-выведи строку; короче достает их по одному
             System.out.printf("%-6d %-30s %-40s%n",
                     c.getId(), c.getCreatedAt(), c.getText());
         }
