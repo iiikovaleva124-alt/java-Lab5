@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstrumentService {
-    private final Map<Long, String> instruments = new HashMap<>();
+    private final Map<Long, Instrument> instruments = new HashMap<>();
     private long nextId = 1;
 
     public long InstAdd(String name) {
