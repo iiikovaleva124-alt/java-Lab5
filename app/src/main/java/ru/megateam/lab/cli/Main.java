@@ -16,14 +16,14 @@ public class Main {
 
         SampleService sampleService = new SampleService();
         InstrumentService instrumentService = new InstrumentService();
-        IncidentService incidentService = new IncidentService(
-                incidentRepository, sampleService, instrumentService
-        );
-
         FileStorage fileStorage = new JsonFileStorage();
         FileValidator fileValidator = new FileValidator();
+        IncidentService incidentService = new IncidentService(
+                incidentRepository, sampleService, instrumentService, fileStorage, fileValidator
+        );
+
         FileService fileService = new FileService(
-                incidentRepository, sampleService, fileStorage, fileValidator
+                incidentRepository, sampleService, instrumentService, fileStorage, fileValidator
         );
 
         IncidentCli cli = new IncidentCli(incidentService, sampleService, instrumentService, fileService);
