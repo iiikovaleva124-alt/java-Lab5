@@ -46,7 +46,7 @@ class IncidentServiceTest {
 
         assertNotNull(incident);
         assertEquals("Test Incident", incident.getTitle());
-        assertEquals(1L, incident.getId());  // Первый ID = 1
+        assertEquals(1L, incident.getId());
     }
 
     @Test
