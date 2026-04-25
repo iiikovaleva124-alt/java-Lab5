@@ -79,7 +79,7 @@ class IncidentServiceTest {
 
         assertTrue(closed.isPresent());
 
-        Optional<Incident> updated = incidentService.getById(incident.getId());
+        Optional<Incident> updated = incidentService.getById(incident.getId()); //проверка что optional не пустой
         assertEquals(IncidentStatus.CLOSED, updated.get().getStatus());
     }
 

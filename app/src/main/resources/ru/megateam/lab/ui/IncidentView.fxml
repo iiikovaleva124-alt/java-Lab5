@@ -2,37 +2,86 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="700" prefWidth="1100" spacing="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="ru.megateam.lab.ui.IncidentController">
+<VBox prefHeight="700" prefWidth="1100" spacing="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.megateam.lab.ui.IncidentController">
 
     <padding>
         <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
 
-    <HBox spacing="10">
-        <Button fx:id="refreshButton" text="Refresh Incidents" />
-        <Button fx:id="addButton" text="Add Incident" />
-        <Button fx:id="editButton" text="Edit" />
-        <Button fx:id="deleteButton" text="Delete" />
+    <HBox spacing="10" style="-fx-background-color: #F55B8B;">
+        <Button fx:id="refreshButton" style="-fx-background-color: #F55B8B;" text="Refresh Incidents" textFill="WHITE">
+         <effect>
+            <ColorAdjust />
+         </effect></Button>
+        <Button fx:id="addButton" style="-fx-background-color: #F55B8B;" text="Add Incident" textFill="WHITE" />
+        <Button fx:id="editButton" style="-fx-background-color: #F55B8B;" text="Edit" textFill="WHITE" />
+        <Button fx:id="deleteButton" style="-fx-background-color: #F55B8B;" text="Delete" textFill="WHITE" />
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="addSampleButton" prefHeight="26.0" prefWidth="86.0" text="Add Sample" />
-        <Button fx:id="addInstrumentButton" text="Add Instrument" />
-        <Button fx:id="saveButton" text="Save" />
-        <Button fx:id="loadButton" text="Load" />
+        <Button fx:id="addSampleButton" prefHeight="11.0" prefWidth="86.0" style="-fx-background-color: #F55B8B;" text="Add Sample" textFill="WHITE" />
+        <Button fx:id="addInstrumentButton" style="-fx-background-color: #F55B8B;" text="Add Instrument" textFill="WHITE" />
+        <Button fx:id="saveButton" style="-fx-background-color: #F55B8B;" text="Save" textFill="WHITE" />
+        <Button fx:id="loadButton" style="-fx-background-color: #F55B8B;" text="Load" textFill="WHITE" />
+      <effect>
+         <ColorAdjust />
+      </effect>
     </HBox>
 
-    <TabPane VBox.vgrow="ALWAYS">
+    <TabPane style="-fx-background-color: #F55B8B;" VBox.vgrow="ALWAYS">
 
         <Tab text="Incidents">
-            <TableView fx:id="incidentTable" prefHeight="400" prefWidth="1000">
+            <TableView fx:id="incidentTable" prefHeight="400" prefWidth="1000" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" >
                 <columns>
-                    <TableColumn fx:id="idColumn" prefWidth="60" text="ID" />
-                    <TableColumn fx:id="titleColumn" prefWidth="250" text="Title" />
-                    <TableColumn fx:id="severityColumn" prefWidth="100" text="Severity" />
-                    <TableColumn fx:id="statusColumn" prefWidth="100" text="Status" />
-                    <TableColumn fx:id="ownerColumn" prefWidth="100" text="Owner" />
+                    <TableColumn fx:id="idColumn" prefWidth="60" text="ID" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="titleColumn" prefWidth="250" text="Title" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="severityColumn" prefWidth="100" text="Severity" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="statusColumn" prefWidth="100" text="Status" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="ownerColumn" prefWidth="100" text="Owner" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="descriptionColumn" prefWidth="200" text="Description" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="sampleColumn" prefWidth="100" text="Sample" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
+                    <TableColumn fx:id="instrumentColumn" prefWidth="100" text="Instrument" style="-fx-background-color: #F55B8B;
+                  -fx-border-color: white;
+                  -fx-border-width: 1px;
+                  -fx-table-cell-border-color: white;
+                  -fx-table-cell-border-size: 1px;" />
                 </columns>
+            <effect>
+               <ColorAdjust />
+            </effect>
             </TableView>
         </Tab>
 
@@ -53,6 +102,9 @@
                 </columns>
             </TableView>
         </Tab>
+      <effect>
+         <ColorAdjust />
+      </effect>
 
     </TabPane>
 

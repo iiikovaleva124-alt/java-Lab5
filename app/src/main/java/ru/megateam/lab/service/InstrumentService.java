@@ -1,6 +1,8 @@
 package ru.megateam.lab.service;
 
 import ru.megateam.lab.domain.Instrument;
+import ru.megateam.lab.domain.Sample;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,10 @@ public class InstrumentService {
     public String getName(long id) {
         Instrument inst = instruments.get(id);
         return inst != null ? inst.getName() : null;
+    }
+
+    public Instrument getById(long id) {
+        return instruments.get(id);
     }
 
     public Long getId(String name) {

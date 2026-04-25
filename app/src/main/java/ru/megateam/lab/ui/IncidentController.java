@@ -1,6 +1,8 @@
 package ru.megateam.lab.ui;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,12 +32,20 @@ import java.util.Optional;
 public class IncidentController {
 
     //таблица для инцидентов
-    @FXML private TableView<Incident> incidentTable;
+    @FXML private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
     @FXML private TableColumn<Incident, Long> idColumn;
     @FXML private TableColumn<Incident, String> titleColumn;
-    @FXML private TableColumn<Incident, IncidentSeverity> severityColumn;
-    @FXML private TableColumn<Incident, IncidentStatus> statusColumn;
+    @FXML private TableColumn<Incident, IncidentSeverity> severityColumn; //окрасить
+    @FXML private TableColumn<Incident, IncidentStatus> statusColumn; // окрасить
     @FXML private TableColumn<Incident, String> ownerColumn;
+    @FXML private TableColumn<Incident, String> descriptionColumn;
+    @FXML private TableColumn<Incident, String> sampleColumn;
+    @FXML private TableColumn<Incident, String> instrumentColumn;
+
+
+    //доп 3
+    //последняя папка
+    //сохранить и сохранить как
 
     //кнопки на панели
     @FXML private Button refreshButton;
@@ -75,6 +85,31 @@ public class IncidentController {
         severityColumn.setCellValueFactory(new PropertyValueFactory<>("severity"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         ownerColumn.setCellValueFactory(new PropertyValueFactory<>("ownerUsername"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        sampleColumn.setCellValueFactory(cellData -> {
+            long sampleId = cellData.getValue().getSampleId();
+
+            if (sampleId == 0) {
+                return new javafx.beans.property.SimpleStringProperty("No sample");
+            }
+            Sample sample = sampleService.getById(sampleId);
+            if (sample != null) {
+                return new javafx.beans.property.SimpleStringProperty(sample.getName());
+            }
+            return new javafx.beans.property.SimpleStringProperty("Unknown");
+        });
+        instrumentColumn.setCellValueFactory(cellData -> {
+            long instrId = cellData.getValue().getInstrumentId();
+
+            if (instrId == 0) {
+                return new javafx.beans.property.SimpleStringProperty("No instrument");
+            }
+            Instrument instrument = instrumentService.getById(instrId);
+            if (instrument != null) {
+                return new SimpleStringProperty(instrument.getName());
+            }
+            return new javafx.beans.property.SimpleStringProperty("Unknown");
+        });
 
         //наблюдаемый список
         incidentList = FXCollections.observableArrayList();
