@@ -69,13 +69,23 @@ public class IncidentApplication extends Application {
             }
 
             assert controller != null;
+            boolean authenticated = controller.showAuthDialog();
+
             controller.setSampleService(sampleService);
             controller.setInstrumentService(instrumentService);
+            if (!authenticated) {
+                System.exit(0);
+                return;
+            }
 
-
-            stage.setTitle("Incident Management System");
+            String username = userService.getCurrentUser().getLogin();
+            stage.setTitle("Incident Management System - " + username);
             stage.setScene(scene); //выводит сцену в окно
             stage.show(); //выводит на экран
+
+            if (controller != null) {
+                controller.handleRefresh();
+            }
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

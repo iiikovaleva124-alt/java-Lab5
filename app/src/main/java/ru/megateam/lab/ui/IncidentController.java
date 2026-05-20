@@ -6,10 +6,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import ru.megateam.lab.domain.*;
 import ru.megateam.lab.persistence.*;
 import ru.megateam.lab.service.IncidentService;
@@ -40,6 +43,7 @@ public class IncidentController {
     @FXML private TableColumn<Incident, String> descriptionColumn;
     @FXML private TableColumn<Incident, String> sampleColumn;
     @FXML private TableColumn<Incident, String> instrumentColumn;
+    @FXML private Button logoutButton;
 
 
     //доп 3
@@ -142,9 +146,11 @@ public class IncidentController {
         loadButton.setOnAction(e -> handleLoad());
         addSampleButton.setOnAction(e -> handleAddSample());
         addInstrumentButton.setOnAction(e -> handleAddInstrument());
+        logoutButton.setOnAction(e -> handleLogout());
+        updateAuthUI();
     }
 
-    private void handleRefresh() { //обновление таблицы
+    void handleRefresh() { //обновление таблицы
         new Thread(() -> { //отдельный поток для выполнения, чтобы не блокать во время загрузки данных
             try {
                 List<Incident> incidents = incidentService.getAllIncidents();//все инциденты
@@ -178,6 +184,166 @@ public class IncidentController {
 
         String fileName = new File(path).getName();
         showInfo("Success", "Data saved to " + fileName);
+    }
+
+    private void handleLogout() {
+        if (userService != null) {
+            userService.logout();
+        }
+
+        if (userStorage != null) {
+            userStorage.save();
+        }
+
+        showAuthWindow();
+
+        Stage stage = (Stage) incidentTable.getScene().getWindow();
+        stage.close();
+    }
+
+    public void updateAuthUI() {
+        if (userService != null && userService.isLoggedIn()) {
+            logoutButton.setVisible(true);
+            logoutButton.setDisable(false);
+
+            Stage stage = (Stage) incidentTable.getScene().getWindow();
+            if (stage != null) {
+                stage.setTitle("Incident Management System - " +
+                        userService.getCurrentUser().getLogin());
+            }
+        } else {
+            logoutButton.setVisible(false);
+            logoutButton.setDisable(true);
+        }
+    }
+
+    private void showAuthWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/ru/megateam/lab/ui/AuthView.fxml")
+            );
+            loader.setControllerFactory(clazz -> {
+                if (clazz == AuthController.class) {
+                    return new AuthController();
+                }
+                try {
+                    return clazz.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            javafx.scene.Parent root = loader.load();
+            AuthController authController = loader.getController();
+            authController.setUserService(userService);
+            authController.setUserStorage(userStorage);
+
+            //после успешной авторизации — перезагрузить главное окно
+            authController.setOnAuthSuccess(() -> {
+                System.out.println("User logged in: " + userService.getCurrentUser().getLogin());
+            });
+
+            Stage authStage = new Stage();
+            authStage.setTitle("Login");
+            authStage.setScene(new Scene(root, 400, 350));
+            authStage.setResizable(false);
+            authStage.showAndWait();  // Ждём пока пользователь авторизуется
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error opening login window", e.getMessage());
+        }
+    }
+
+    boolean showAuthDialog() {
+        Dialog<Boolean> dialog = new Dialog<>();
+        dialog.setTitle("Login");
+        dialog.setHeaderText("Please login or register");
+        dialog.setResizable(true);
+
+        ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+        ButtonType registerButtonType = new ButtonType("Register", ButtonBar.ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, registerButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField loginField = new TextField();
+        loginField.setPromptText("Login");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+
+        grid.add(new Label("Login:"), 0, 0);
+        grid.add(loginField, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+        grid.add(errorLabel, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+
+        loginField.textProperty().addListener((obs, old, val) ->
+                loginButton.setDisable(val.trim().isEmpty() || passwordField.getText().isEmpty()));
+        passwordField.textProperty().addListener((obs, old, val) ->
+                loginButton.setDisable(loginField.getText().trim().isEmpty() || val.isEmpty()));
+
+        passwordField.setOnAction(e -> {
+            if (!loginButton.isDisabled()) {
+                dialog.setResult(true);
+                dialog.close();
+            }
+        });
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                String login = loginField.getText().trim();
+                String password = passwordField.getText();
+
+                if (userService.login(login, password)) {
+                    if (userStorage != null) userStorage.save();
+                    return true;
+                } else {
+                    errorLabel.setText("Invalid login or password");
+                    return null;
+                }
+            } else if (dialogButton == registerButtonType) {
+                String login = loginField.getText().trim();
+                String password = passwordField.getText();
+
+                if (login.isEmpty() || password.isEmpty()) {
+                    errorLabel.setText("Please enter login and password");
+                    return null;
+                }
+                if (password.length() < 4) {
+                    errorLabel.setText("Password must be at least 4 characters");
+                    return null;
+                }
+
+                try {
+                    if (userService.register(login, password)) {
+                        if (userStorage != null) userStorage.save();
+                        errorLabel.setText("Registered! Please login");
+                        return null;
+                    } else {
+                        errorLabel.setText("User already exists");
+                        return null;
+                    }
+                } catch (IllegalArgumentException e) {
+                    errorLabel.setText(e.getMessage());
+                    return null;
+                }
+            }
+            return false;
+        });
+
+        Optional<Boolean> result = dialog.showAndWait();
+        return result.isPresent() && result.get();
     }
 
     private void handleAdd() {
