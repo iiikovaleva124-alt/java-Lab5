@@ -1,9 +1,8 @@
 package ru.megateam.lab.repository;
 
 import ru.megateam.lab.domain.User;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 public class InMemoryUserRepository implements UserRepository {
     private final Map<String, User> users = new HashMap<>();
@@ -21,5 +20,10 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public boolean existsByLogin(String login) {
         return users.containsKey(login);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
     }
 }
