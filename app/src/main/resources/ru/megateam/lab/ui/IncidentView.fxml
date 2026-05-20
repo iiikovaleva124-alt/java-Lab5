@@ -11,20 +11,22 @@
         <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
 
-    <HBox spacing="10" >
-        <Button fx:id="refreshButton" text="Refresh Incidents" >
+    <HBox spacing="10">
+        <Button fx:id="addButton" text="Add Incident" />
+        <Button fx:id="editButton" text="Edit" />
+        <Button fx:id="deleteButton" text="Delete" />
+        <Button fx:id="addSampleButton" prefHeight="11.0" prefWidth="86.0" text="Add Sample" />
+        <Button fx:id="addInstrumentButton" text="Add Instrument" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="refreshButton" text="Refresh Incidents">
             <effect>
                 <ColorAdjust />
             </effect></Button>
-        <Button fx:id="addButton" text="Add Incident" />
-        <Button fx:id="editButton" text="Edit"  />
-        <Button fx:id="deleteButton" text="Delete" />
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="addSampleButton" prefHeight="11.0" prefWidth="86.0" text="Add Sample" />
-        <Button fx:id="addInstrumentButton" text="Add Instrument"  />
-        <Button fx:id="saveButton" text="Save"  />
+        <Button fx:id="saveButton" text="Save" />
         <Button fx:id="loadButton" text="Load" />
         <Button fx:id="saveAsButton" text="Save As" />
+        <Button fx:id="logoutButton" text="Logout" />
         <effect>
             <ColorAdjust />
         </effect>
@@ -33,16 +35,16 @@
     <TabPane VBox.vgrow="ALWAYS">
 
         <Tab text="Incidents">
-            <TableView fx:id="incidentTable" prefHeight="400" prefWidth="1000" >
+            <TableView fx:id="incidentTable" prefHeight="400" prefWidth="1000">
                 <columns>
                     <TableColumn fx:id="idColumn" prefWidth="60" text="ID" />
                     <TableColumn fx:id="titleColumn" prefWidth="250" text="Title" />
                     <TableColumn fx:id="severityColumn" prefWidth="100" text="Severity" />
                     <TableColumn fx:id="statusColumn" prefWidth="100" text="Status" />
-                    <TableColumn fx:id="ownerColumn" prefWidth="100" text="Owner"  />
+                    <TableColumn fx:id="ownerColumn" prefWidth="100" text="Owner" />
                     <TableColumn fx:id="descriptionColumn" prefWidth="200" text="Description" />
                     <TableColumn fx:id="sampleColumn" prefWidth="100" text="Sample" />
-                    <TableColumn fx:id="instrumentColumn" prefWidth="100" text="Instrument"  />
+                    <TableColumn fx:id="instrumentColumn" prefWidth="100" text="Instrument" />
                 </columns>
                 <effect>
                     <ColorAdjust />
