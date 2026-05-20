@@ -5,11 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ru.megateam.lab.persistence.JsonFileStorage;
+import ru.megateam.lab.persistence.JsonUserStorage;
+import ru.megateam.lab.persistence.UserFileStorage;
+import ru.megateam.lab.repository.InMemoryUserRepository;
 import ru.megateam.lab.service.IncidentService;
 import ru.megateam.lab.service.SampleService;
 import ru.megateam.lab.service.InstrumentService;
 import ru.megateam.lab.repository.InMemoryIncidentRepository;
 import ru.megateam.lab.persistence.FileValidator;
+import ru.megateam.lab.service.UserService;
 
 import java.io.File;
 
@@ -40,15 +44,17 @@ public class IncidentApplication extends Application {
                 }
             });
 
+            InMemoryUserRepository userRepository = new InMemoryUserRepository();
+            JsonUserStorage userStorage = new JsonUserStorage("users.json", userRepository);
+            userStorage.load(); //загружаем при старте пользователей при запуске
+            UserService userService = new UserService(userRepository, userStorage);
+
             var repository = new InMemoryIncidentRepository();
             var sampleService = new SampleService();
             var instrumentService = new InstrumentService();
             var validator = new FileValidator();
-            var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator);
+            var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator, userService);
             var fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
-            incidentService = new IncidentService(
-                    repository, sampleService, instrumentService, fileStorage, validator
-            );
 
             Scene scene = new Scene(fxmlLoader.load(), 900, 600); //создает визуал
 
@@ -56,6 +62,10 @@ public class IncidentApplication extends Application {
             if (controller != null) {
                 controller.setIncidentService(incidentService); //передаем сервисы
                 controller.setFileStorage(fileStorage);
+                controller.setSampleService(sampleService);
+                controller.setInstrumentService(instrumentService);
+                controller.setUserService(userService);
+                controller.setUserStorage(userStorage);
             }
 
             assert controller != null;

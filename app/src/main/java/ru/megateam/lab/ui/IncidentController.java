@@ -11,16 +11,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import ru.megateam.lab.domain.*;
-import ru.megateam.lab.persistence.AppState;
-import ru.megateam.lab.persistence.JsonFileStorage;
+import ru.megateam.lab.persistence.*;
 import ru.megateam.lab.service.IncidentService;
-import ru.megateam.lab.persistence.FileStorage;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import ru.megateam.lab.service.InstrumentService;
 import ru.megateam.lab.service.SampleService;
+import ru.megateam.lab.service.UserService;
 
 import java.util.Map;
 import java.util.Objects;
@@ -77,6 +76,8 @@ public class IncidentController {
     private FileStorage fileStorage;
     private SampleService sampleService;
     private InstrumentService instrumentService;
+    private UserService userService;
+    private JsonUserStorage userStorage;
 
     private String currentFilePath;
     private boolean hasUnsavedChanges = false;
@@ -719,6 +720,14 @@ public class IncidentController {
 
     public void setFileStorage(JsonFileStorage storage) {
         this.fileStorage = storage;
+    }
+
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void setUserStorage(JsonUserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
     private void setAllIncidents(List<Incident> incidents) {//обнвление таблицы

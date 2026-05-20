@@ -1,15 +1,18 @@
 package ru.megateam.lab.service;
 
 import ru.megateam.lab.domain.User;
+import ru.megateam.lab.persistence.JsonUserStorage;
 import ru.megateam.lab.repository.UserRepository;
 import java.util.Optional;
 
 public class UserService {
     private final UserRepository userRepository;
+    private final JsonUserStorage userStorage;
     private User currentUser; // текущий авторизованный пользователь
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JsonUserStorage userStorage) {
         this.userRepository = userRepository;
+        this.userStorage = userStorage;
     }
 
     public boolean register(String login, String password) {
@@ -25,6 +28,11 @@ public class UserService {
 
         User user = new User(login, password);
         userRepository.save(user);
+
+        if (userStorage != null) {
+            userStorage.save();
+        }
+
         return true;
     }
 
