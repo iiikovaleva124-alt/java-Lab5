@@ -181,6 +181,13 @@ public class IncidentController {
     }
 
     private void handleAdd() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to add incidents");
+            return;
+        }
+
         Optional<Incident> result = showIncidentDialog(null); //диалог в режиме создания
         result.ifPresent(incident -> { //если не отмена
             try {
@@ -188,7 +195,7 @@ public class IncidentController {
                         incident.getTitle(),
                         incident.getSeverity(),
                         incident.getDescription(),
-                        incident.getOwnerUsername(),
+                        userService.getCurrentUser().getLogin(),
                         incident.getSampleId(),
                         incident.getInstrumentId()
                 );
@@ -201,9 +208,23 @@ public class IncidentController {
     }
 
     private void handleEdit() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to edit incidents");
+            return;
+        }
+
         Incident selected = incidentTable.getSelectionModel().getSelectedItem(); //выбранный в таблице инцидент
         if (selected == null) { //проверка что выбран
             showError("No selection", "Please select an incident to edit");
+            return;
+        }
+
+        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) {
+            showError("Access Denied",
+                    "You can only edit your own incidents (owner: " +
+                            selected.getOwnerUsername() + ")");
             return;
         }
 
@@ -228,9 +249,23 @@ public class IncidentController {
     }
 
     private void handleDelete() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to delete incidents");
+            return;
+        }
+
         Incident selected = incidentTable.getSelectionModel().getSelectedItem(); //выбранный инцидент
         if (selected == null) {
             showError("No selection", "Please select an incident to delete");
+            return;
+        }
+
+        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) {
+            showError("Access Denied",
+                    "You can only delete your own incidents (owner: " +
+                            selected.getOwnerUsername() + ")");
             return;
         }
 
