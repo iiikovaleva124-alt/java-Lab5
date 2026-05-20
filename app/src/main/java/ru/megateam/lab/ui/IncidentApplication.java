@@ -2,6 +2,7 @@ package ru.megateam.lab.ui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ru.megateam.lab.persistence.JsonFileStorage;
@@ -56,7 +57,7 @@ public class IncidentApplication extends Application {
             var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator, userService);
             var fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
 
-            Scene scene = new Scene(fxmlLoader.load(), 900, 600); //создает визуал
+            Parent root = fxmlLoader.load();
 
             IncidentController controller = fxmlLoader.getController(); //получаем созданный контроллер
             if (controller != null) {
@@ -78,14 +79,16 @@ public class IncidentApplication extends Application {
                 return;
             }
 
+            controller.updateAuthUI();
+
+            Scene scene = new Scene(root, 900, 600);
+
             String username = userService.getCurrentUser().getLogin();
             stage.setTitle("Incident Management System - " + username);
             stage.setScene(scene); //выводит сцену в окно
             stage.show(); //выводит на экран
 
-            if (controller != null) {
-                controller.handleRefresh();
-            }
+            controller.handleRefresh();
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

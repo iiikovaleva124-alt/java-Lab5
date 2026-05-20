@@ -2,7 +2,6 @@ package ru.megateam.lab.ui;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,7 +15,6 @@ import javafx.stage.Stage;
 import ru.megateam.lab.domain.*;
 import ru.megateam.lab.persistence.*;
 import ru.megateam.lab.service.IncidentService;
-import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -43,7 +41,6 @@ public class IncidentController {
     @FXML private TableColumn<Incident, String> descriptionColumn;
     @FXML private TableColumn<Incident, String> sampleColumn;
     @FXML private TableColumn<Incident, String> instrumentColumn;
-    @FXML private Button logoutButton;
 
 
     //доп 3
@@ -60,6 +57,7 @@ public class IncidentController {
     @FXML private Button saveButton;
     @FXML private Button loadButton;
     @FXML private Button saveAsButton;
+    @FXML private Button logoutButton;
 
     //таблица для образцов
     @FXML private TableView<Sample> sampleTable;
@@ -187,30 +185,33 @@ public class IncidentController {
     }
 
     private void handleLogout() {
-        if (userService != null) {
-            userService.logout();
-        }
-
         if (userStorage != null) {
             userStorage.save();
         }
 
-        showAuthWindow();
+        if (userService != null) {
+            userService.logout();
+        }
 
-        Stage stage = (Stage) incidentTable.getScene().getWindow();
-        stage.close();
+        boolean authenticated = showAuthDialog();
+
+        if (!authenticated) {
+            // Пользователь отменил — закрываем приложение
+            Stage stage = (Stage) incidentTable.getScene().getWindow();
+            stage.close();
+            System.exit(0);
+        } else {
+            // Успешный вход — обновляем заголовок и данные
+            Stage stage = (Stage) incidentTable.getScene().getWindow();
+            stage.setTitle("Incident Management System - " + userService.getCurrentUser().getLogin());
+            handleRefresh();
+        }
     }
 
     public void updateAuthUI() {
         if (userService != null && userService.isLoggedIn()) {
             logoutButton.setVisible(true);
             logoutButton.setDisable(false);
-
-            Stage stage = (Stage) incidentTable.getScene().getWindow();
-            if (stage != null) {
-                stage.setTitle("Incident Management System - " +
-                        userService.getCurrentUser().getLogin());
-            }
         } else {
             logoutButton.setVisible(false);
             logoutButton.setDisable(true);
@@ -295,8 +296,16 @@ public class IncidentController {
 
         passwordField.setOnAction(e -> {
             if (!loginButton.isDisabled()) {
-                dialog.setResult(true);
-                dialog.close();
+                String login = loginField.getText().trim();
+                String password = passwordField.getText();
+
+                if (userService.login(login, password)) {
+                    if (userStorage != null) userStorage.save();
+                    dialog.setResult(true);
+                    dialog.close();
+                } else {
+                    errorLabel.setText("Invalid login or password");
+                }
             }
         });
 
@@ -328,7 +337,11 @@ public class IncidentController {
                 try {
                     if (userService.register(login, password)) {
                         if (userStorage != null) userStorage.save();
-                        errorLabel.setText("Registered! Please login");
+
+                        if (userService.login(login, password)) {
+                            if (userStorage != null) userStorage.save();
+                            return true;
+                        }
                         return null;
                     } else {
                         errorLabel.setText("User already exists");
@@ -337,6 +350,7 @@ public class IncidentController {
                 } catch (IllegalArgumentException e) {
                     errorLabel.setText(e.getMessage());
                     return null;
+
                 }
             }
             return false;
@@ -654,8 +668,10 @@ public class IncidentController {
         statusChoice.setValue(incident != null ? incident.getStatus() : IncidentStatus.NEW);
 
         Label ownerLabel = new Label("Owner:");
-        TextField ownerField = new TextField(incident != null ? incident.getOwnerUsername() : "");
-        ownerField.setPromptText("Enter owner (or leave empty for SYSTEM)"); //если пустое то при создании присвоится system
+        String currentOwner = userService.getCurrentUser().getLogin();  // Текущий пользователь
+        TextField ownerField = new TextField(currentOwner);
+        ownerField.setEditable(false);
+        ownerField.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #666666;");
 
         Label sampleIdLabel = new Label("Sample ID:");
         TextField sampleIdField = new TextField(
