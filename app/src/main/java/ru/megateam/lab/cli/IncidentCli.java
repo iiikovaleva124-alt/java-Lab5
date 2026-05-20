@@ -19,16 +19,19 @@ public class IncidentCli {
     private final FileService fileService;
     private final Scanner scanner;
     private final String currentUser = "SYSTEM";
+    private final UserService userService;
 
     public IncidentCli(IncidentService incidentService,
                        SampleService sampleService,
                        InstrumentService instrumentService,
-                       FileService fileService) {
+                       FileService fileService,
+                       UserService userService) {
         this.incidentService = incidentService;
         this.sampleService = sampleService;
         this.instrumentService = instrumentService;
         this.fileService = fileService;
         this.scanner = new Scanner(System.in);
+        this.userService = userService;
     }
 
     public void run() {
@@ -70,10 +73,16 @@ public class IncidentCli {
         String args = parts.length > 1 ? parts[1] : "";
 
         switch (command) {
-            case "inc_add" -> handleIncAdd();
+            case "inc_add" -> {
+                checkAuth();
+                handleIncAdd();
+            }
             case "inc_list" -> handleIncList(args); // Саша, вот эти команды надо прописать
             case "inc_show" -> handleIncShow(args);
-            case "inc_update" -> handleIncUpdate(args);
+            case "inc_update" -> {
+                checkAuth();
+                handleIncUpdate(args);
+            }
             case "inc_link_sample" -> handleLinkSample(args);
             case "inc_link_instrument" -> handleLinkInstrument(args);
             case "inc_comment_add" -> handleCommentAdd(args);
@@ -84,6 +93,9 @@ public class IncidentCli {
             case "inst_add" -> handleInstAdd(); //есть соответствующая в instrument service
             case "save" -> handleSave(args);
             case "load" -> handleLoad(args);
+            case "register" -> handleRegister(args);
+            case "login" -> handleLogin(args);
+            case "logout" -> handleLogout();
 
             default -> throw new IllegalArgumentException("Unknown command: " + command);
         }
@@ -478,27 +490,110 @@ public class IncidentCli {
         }
     }
 
+    private void handleRegister(String args) {
+        if (userService.isLoggedIn()) {
+            System.err.println("Error: you are already logged in as " +
+                    userService.getCurrentUser().getLogin());
+            return;
+        }
+
+        String login, password;
+
+        if (!args.isEmpty()) {
+            String[] parts = args.split("\\s+");
+            if (parts.length < 2) {
+                System.err.println("Usage: register <login> <password>");
+                return;
+            }
+            login = parts[0];
+            password = parts[1];
+        } else {
+            System.out.print("Enter login: ");
+            login = scanner.nextLine().trim();
+
+            System.out.print("Enter password: ");
+            password = scanner.nextLine().trim();
+        }
+
+        if (userService.register(login, password)) {
+            System.out.println("✓ User registered successfully!");
+            System.out.println("You can now login with: login " + login);
+        } else {
+            System.err.println("Error: user with login '" + login + "' already exists");
+        }
+    }
+
+    private void handleLogin(String args) {
+        if (userService.isLoggedIn()) {
+            System.err.println("Error: you are already logged in as " +
+                    userService.getCurrentUser().getLogin());
+            return;
+        }
+
+        String login, password;
+
+        if (!args.isEmpty()) {
+            String[] parts = args.split("\\s+");
+            if (parts.length < 2) {
+                System.err.println("Usage: login <login> <password>");
+                return;
+            }
+            login = parts[0];
+            password = parts[1];
+        } else {
+            System.out.print("Enter login: ");
+            login = scanner.nextLine().trim();
+
+            System.out.print("Enter password: ");
+            password = scanner.nextLine().trim();
+        }
+
+        if (userService.login(login, password)) {
+            System.out.println("✓ Login successful! Welcome, " + login);
+        } else {
+            System.err.println("Error: invalid login or password");
+        }
+    }
+
+    private void handleLogout() {
+        if (!userService.isLoggedIn()) {
+            System.err.println("Error: you are not logged in");
+            return;
+        }
+
+        String username = userService.getCurrentUser().getLogin();
+        userService.logout();
+        System.out.println("Logged out successfully. Goodbye, " + username);
+    }
+
+    private void checkAuth() {
+        userService.requireAuth();
+    }
+
     private void printHelp() {
         System.out.println("\nIncident methods");
-        System.out.println("  inc_add                                       - add an incident");
-        System.out.println("  inc_list --status STATUS --last N             - list of incidents by status and date");
-        System.out.println("  inc_show id                                   - show n incident by id");
-        System.out.println("  inc_update id field=value                     - update field in incident");
-        System.out.println("  inc_link_sample inc_id sample_id              - link a sample");
-        System.out.println("  inc_link_instrument inc_id inst_id            - link an instrument");
-        System.out.println("  inc_comment_add inc_id                        - add a comment");
-        System.out.println("  inc_comment_list inc_id                       - list of comments");
-        System.out.println("  inc_close id                                  - close incident");
-        System.out.println("  inc_report --from YYYY-MM-DD --to YYYY-MM-DD  - report of incidents between dates");
-        System.out.println("  sample_add                                    - create a sample");
-        System.out.println("  inst_add                                      - add an instrument");
-        System.out.println();
-        System.out.println("File methods");
-        System.out.println("  save [path]                                   - save data to file (default data.json)");
-        System.out.println("  load [path]                                   - load data from file (default data.json)");
-        System.out.println();
-        System.out.println("  help                                          - type to get info about all commands");
-        System.out.println("  exit                                          - type if you want to exit");
-        System.out.println();
-    }
+        System.out.println("\n--- Authentication ---");
+        System.out.println("  register             - Register new user");
+        System.out.println("  login                - Login to system");
+        System.out.println("  logout               - Logout from system");
+
+        System.out.println("\n--- Collection Management (auth required) ---");
+        System.out.println("  add                  - Add new incident");
+        System.out.println("  update <id>          - Update incident");
+        System.out.println("  remove <id>          - Remove incident");
+        System.out.println("  clear                - Clear all incidents");
+
+        System.out.println("\n--- Information (available to all) ---");
+        System.out.println("  show                 - Show all incidents");
+        System.out.println("  info <id>            - Show incident details");
+        System.out.println("  help                 - Show this help");
+
+        System.out.println("\n--- Other ---");
+        System.out.println("  exit                 - Exit application");
+
+        if (userService.isLoggedIn()) {
+            System.out.println("\n[Logged in as: " + userService.getCurrentUser().getLogin() + "]");
+        } else {
+            System.out.println("\n[Not logged in]");
+        }}
 }
