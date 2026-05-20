@@ -56,6 +56,7 @@ public class IncidentController {
     @FXML private Button addInstrumentButton;
     @FXML private Button saveButton;
     @FXML private Button loadButton;
+    @FXML private Button saveAsButton;
 
     //таблица для образцов
     @FXML private TableView<Sample> sampleTable;
@@ -76,6 +77,9 @@ public class IncidentController {
     private FileStorage fileStorage;
     private SampleService sampleService;
     private InstrumentService instrumentService;
+
+    private String currentFilePath;
+    private boolean hasUnsavedChanges = false;
 
     @FXML
     public void initialize() {
@@ -133,6 +137,7 @@ public class IncidentController {
         editButton.setOnAction(e -> handleEdit());
         deleteButton.setOnAction(e -> handleDelete());
         saveButton.setOnAction(e -> handleSave());
+        saveAsButton.setOnAction(e -> handleSaveAs());
         loadButton.setOnAction(e -> handleLoad());
         addSampleButton.setOnAction(e -> handleAddSample());
         addInstrumentButton.setOnAction(e -> handleAddInstrument());
@@ -156,6 +161,22 @@ public class IncidentController {
                 );
             }
         }).start(); //запуск этого потока
+    }
+
+
+    private void saveToFile(String path) {
+        // получаем данные из сервисов
+        List<Incident> incidents = incidentService.getAllIncidents();
+        List<Sample> samples = sampleService.getAll();
+        List<Instrument> instruments = instrumentService.getAll();
+        Map<Long, List<Comment>> comments = incidentService.getAllComments();
+
+        AppState state = new AppState(incidents, samples, instruments, comments);
+
+        fileStorage.save(path, state); // сохраняем через fileStorage
+
+        String fileName = new File(path).getName();
+        showInfo("Success", "Data saved to " + fileName);
     }
 
     private void handleAdd() {
@@ -230,34 +251,50 @@ public class IncidentController {
     }
 
     private void handleSave() {
-        FileChooser fileChooser = new FileChooser(); //диалог для выбора файла
-        fileChooser.setTitle("Save Incidents");
-        fileChooser.getExtensionFilters().add(    //добавляет фильтр на расширения
-                new FileChooser.ExtensionFilter("JSON Files", "*.json") //ограничивает возможные файлы только JSON
+        if (currentFilePath == null) {
+            showInfo("No file", "Please use 'Save As...' to select a file first");
+            return;
+        }
+
+        try {
+            // сохраняем в запомненный путь
+            saveToFile(currentFilePath);
+            hasUnsavedChanges = false;  // Сбрасываем флаг изменений
+
+        } catch (Exception e) {
+            showError("Error saving file", e.getMessage());
+        }
+    }
+
+    private void handleSaveAs() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Incidents As...");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files", "*.json")
         );
 
-        File file = fileChooser.showSaveDialog(incidentTable.getScene().getWindow()); //получает все окно, внутри получает визуал - сцена, внутри получает таблицу
-        if (file != null) { //файл выбран
+        // если есть текущий файл — предложить ту же папку и имя
+        if (currentFilePath != null) {
+            File currentFile = new File(currentFilePath);
+            fileChooser.setInitialDirectory(currentFile.getParentFile());
+            fileChooser.setInitialFileName(currentFile.getName());
+        }
+
+        File file = fileChooser.showSaveDialog(incidentTable.getScene().getWindow());
+        if (file != null) {
             try {
-                //получаем данные из сервисов
-                List<Incident> incidents = incidentService.getAllIncidents();
-                List<Sample> samples = sampleService.getAll();
-                List<Instrument> instruments = instrumentService.getAll();
-                Map<Long, List<Comment>> comments = incidentService.getAllComments(); // если есть такой метод
+                // запоминаем новый путь и сохраняем
+                currentFilePath = file.getAbsolutePath();
+                saveToFile(currentFilePath);
+                hasUnsavedChanges = false;
 
-                //создаём AppState с данными
-                AppState state = new AppState(incidents, samples, instruments, comments);
-
-                //сохраняем заполненный объект
-                fileStorage.save(file.getAbsolutePath(), state);
-
-                showInfo("Success", "Data saved to " + file.getName());
             } catch (Exception e) {
                 showError("Error saving file", e.getMessage());
             }
         }
     }
-    private void handleLoad() { //как сохранение
+
+    private void handleLoad() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Load Incidents");
         fileChooser.getExtensionFilters().add(
@@ -268,8 +305,15 @@ public class IncidentController {
         if (file != null) {
             try {
                 fileStorage.load(file.getAbsolutePath());
+
+                // ✅ Запоминаем путь к загруженному файлу
+                currentFilePath = file.getAbsolutePath();
+                hasUnsavedChanges = false;
+
                 handleRefresh();
+
                 showInfo("Success", "Data loaded from " + file.getName());
+
             } catch (Exception e) {
                 showError("Error loading file", e.getMessage());
             }
