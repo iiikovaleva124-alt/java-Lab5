@@ -18,6 +18,7 @@ public class IncidentService {
     private final InstrumentService instrumentService;
     private final FileStorage fileStorage;
     private final FileValidator validator;
+    private final UserService userService;
 
     private long nextId = 1;
 
@@ -26,12 +27,13 @@ public class IncidentService {
                                SampleService sampleService,
                                InstrumentService instrumentService,
                                FileStorage fileStorage,
-                               FileValidator validator) {
+                               FileValidator validator, UserService userService) {
             this.repository = repository;
             this.sampleService = sampleService;
             this.instrumentService = instrumentService;
             this.fileStorage = fileStorage;
             this.validator = validator;
+            this.userService = userService;
         }
 
     public Incident add(String title, IncidentSeverity severity,
@@ -42,9 +44,13 @@ public class IncidentService {
     public Incident add(String title, IncidentSeverity severity,
                         String description, String owner,
                         long sampleId, long instrumentId) {
+
+        userService.requireAuth(); // проверяем авторизацию
+        String currentUsername = userService.getCurrentUser().getLogin(); // получаем текущего пользователя
+
         Incident incident = new Incident(
                 nextId++, title, description, severity,
-                IncidentStatus.NEW, sampleId, instrumentId, owner,
+                IncidentStatus.NEW, sampleId, instrumentId, currentUsername,
                 Instant.now(), Instant.now()
         );
         repository.add(incident);
@@ -114,10 +120,18 @@ public class IncidentService {
                                          IncidentSeverity severity, IncidentStatus status,
                                          long sampleId, long instrumentId) {
         IncidentExists(id);
+        userService.requireAuth();
 
         return repository.getById(id).map(incident -> {
             if (incident.getStatus() == IncidentStatus.CLOSED) {
                 throw new IllegalArgumentException("You can not update closed incident");
+            }
+
+            if (!incident.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) { //можно редачить только свои инциденты
+                throw new IllegalArgumentException(
+                        "Error: you do not have rights to modify this object (owner: " +
+                                incident.getOwnerUsername() + ")"
+                );
             }
 
             incident.setTitle(title);
@@ -191,11 +205,31 @@ public class IncidentService {
         }
     }
 
+    public boolean canModifyIncident(long id) {
+        Optional<Incident> incidentOpt = repository.getById(id);
+        if (incidentOpt.isPresent()) {
+            String owner = incidentOpt.get().getOwnerUsername();
+            String currentUser = userService.getCurrentUser().getLogin();
+            return owner.equals(currentUser);
+        }
+        return false;
+    }
+
     public List<Incident> getAllIncidents() {
         return repository.getAll();
     }
 
     public void deleteIncident(long id) {
+        userService.requireAuth(); //проверяем авторитизацию
+
+        if (!canModifyIncident(id)) {
+            Incident incident = repository.getById(id).orElse(null);
+            String owner = incident != null ? incident.getOwnerUsername() : "unknown";
+            throw new IllegalArgumentException(
+                    "Error: you do not have rights to delete this object (owner: " + owner + ")"
+            );
+        }
+
         repository.deleteById(id);
     }
 
