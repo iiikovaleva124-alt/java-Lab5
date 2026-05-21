@@ -42,7 +42,7 @@
                 style="-fx-background-color: white; "/>
     </HBox>
 
-    <Label fx:id="errorLabel" text=""
+    <Label fx:id="errorLabel"
            style="-fx-font-size: 12px;"
            wrapText="true" maxWidth="340"/>
 

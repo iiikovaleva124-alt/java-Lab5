@@ -32,15 +32,24 @@ import java.util.Optional;
 public class IncidentController {
 
     //таблица для инцидентов
-    @FXML private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
-    @FXML private TableColumn<Incident, Long> idColumn;
-    @FXML private TableColumn<Incident, String> titleColumn;
-    @FXML private TableColumn<Incident, IncidentSeverity> severityColumn; //окрасить
-    @FXML private TableColumn<Incident, IncidentStatus> statusColumn; // окрасить
-    @FXML private TableColumn<Incident, String> ownerColumn;
-    @FXML private TableColumn<Incident, String> descriptionColumn;
-    @FXML private TableColumn<Incident, String> sampleColumn;
-    @FXML private TableColumn<Incident, String> instrumentColumn;
+    @FXML
+    private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
+    @FXML
+    private TableColumn<Incident, Long> idColumn;
+    @FXML
+    private TableColumn<Incident, String> titleColumn;
+    @FXML
+    private TableColumn<Incident, IncidentSeverity> severityColumn; //окрасить
+    @FXML
+    private TableColumn<Incident, IncidentStatus> statusColumn; // окрасить
+    @FXML
+    private TableColumn<Incident, String> ownerColumn;
+    @FXML
+    private TableColumn<Incident, String> descriptionColumn;
+    @FXML
+    private TableColumn<Incident, String> sampleColumn;
+    @FXML
+    private TableColumn<Incident, String> instrumentColumn;
 
 
     //доп 3
@@ -48,26 +57,42 @@ public class IncidentController {
     //сохранить и сохранить как
 
     //кнопки на панели
-    @FXML private Button refreshButton;
-    @FXML private Button addButton;
-    @FXML private Button editButton;
-    @FXML private Button deleteButton;
-    @FXML private Button addSampleButton;
-    @FXML private Button addInstrumentButton;
-    @FXML private Button saveButton;
-    @FXML private Button loadButton;
-    @FXML private Button saveAsButton;
-    @FXML private Button logoutButton;
+    @FXML
+    private Button refreshButton;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button deleteButton;
+    @FXML
+    private Button addSampleButton;
+    @FXML
+    private Button addInstrumentButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button loadButton;
+    @FXML
+    private Button saveAsButton;
+    @FXML
+    private Button logoutButton;
 
     //таблица для образцов
-    @FXML private TableView<Sample> sampleTable;
-    @FXML private TableColumn<Sample, Long> sampleIdColumn;
-    @FXML private TableColumn<Sample, String> sampleNameColumn;
+    @FXML
+    private TableView<Sample> sampleTable;
+    @FXML
+    private TableColumn<Sample, Long> sampleIdColumn;
+    @FXML
+    private TableColumn<Sample, String> sampleNameColumn;
 
     //таблица для инструментов
-    @FXML private TableView<Instrument> instrumentTable;
-    @FXML private TableColumn<Instrument, Long> instrumentIdColumn;
-    @FXML private TableColumn<Instrument, String> instrumentNameColumn;
+    @FXML
+    private TableView<Instrument> instrumentTable;
+    @FXML
+    private TableColumn<Instrument, Long> instrumentIdColumn;
+    @FXML
+    private TableColumn<Instrument, String> instrumentNameColumn;
 
     //передает слушателям когда списки меняются
     private ObservableList<Incident> incidentList;
@@ -145,7 +170,7 @@ public class IncidentController {
         addSampleButton.setOnAction(e -> handleAddSample());
         addInstrumentButton.setOnAction(e -> handleAddInstrument());
         logoutButton.setOnAction(e -> handleLogout());
-        updateAuthUI();
+        updateAuthUI(); //проверяем есть ли авторитизация чтобы показать logout
     }
 
     void handleRefresh() { //обновление таблицы
@@ -186,22 +211,22 @@ public class IncidentController {
 
     private void handleLogout() {
         if (userStorage != null) {
-            userStorage.save();
+            userStorage.save(); //сохраняем новых пользователей
         }
 
         if (userService != null) {
             userService.logout();
         }
 
-        boolean authenticated = showAuthDialog();
+        boolean authenticated = showAuthDialog(); //чтобы после выхода из акка выкидывалось окно входа
 
         if (!authenticated) {
-            // Пользователь отменил — закрываем приложение
+            //пользователь отменил - закрываем приложение
             Stage stage = (Stage) incidentTable.getScene().getWindow();
             stage.close();
             System.exit(0);
         } else {
-            // Успешный вход — обновляем заголовок и данные
+            //обновляем заголовок и данные при успешном входе
             Stage stage = (Stage) incidentTable.getScene().getWindow();
             stage.setTitle("Incident Management System - " + userService.getCurrentUser().getLogin());
             handleRefresh();
@@ -209,50 +234,12 @@ public class IncidentController {
     }
 
     public void updateAuthUI() {
-        if (userService != null && userService.isLoggedIn()) {
-            logoutButton.setVisible(true);
-            logoutButton.setDisable(false);
+        if (userService != null && userService.isLoggedIn()) { //если есть вход
+            logoutButton.setVisible(true); //показать кнопку выхода из аккаунта
+            logoutButton.setDisable(false); //разблокировать кнопку
         } else {
             logoutButton.setVisible(false);
             logoutButton.setDisable(true);
-        }
-    }
-
-    private void showAuthWindow() {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/ru/megateam/lab/ui/AuthView.fxml")
-            );
-            loader.setControllerFactory(clazz -> {
-                if (clazz == AuthController.class) {
-                    return new AuthController();
-                }
-                try {
-                    return clazz.getDeclaredConstructor().newInstance();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            javafx.scene.Parent root = loader.load();
-            AuthController authController = loader.getController();
-            authController.setUserService(userService);
-            authController.setUserStorage(userStorage);
-
-            //после успешной авторизации — перезагрузить главное окно
-            authController.setOnAuthSuccess(() -> {
-                System.out.println("User logged in: " + userService.getCurrentUser().getLogin());
-            });
-
-            Stage authStage = new Stage();
-            authStage.setTitle("Login");
-            authStage.setScene(new Scene(root, 400, 350));
-            authStage.setResizable(false);
-            authStage.showAndWait();  // Ждём пока пользователь авторизуется
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Error opening login window", e.getMessage());
         }
     }
 
@@ -262,7 +249,7 @@ public class IncidentController {
         dialog.setHeaderText("Please login or register");
         dialog.setResizable(true);
 
-        ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+        ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE); //реагирует на enter
         ButtonType registerButtonType = new ButtonType("Register", ButtonBar.ButtonData.OTHER);
         dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, registerButtonType, ButtonType.CANCEL);
 
@@ -273,7 +260,7 @@ public class IncidentController {
 
         TextField loginField = new TextField();
         loginField.setPromptText("Login");
-        PasswordField passwordField = new PasswordField();
+        PasswordField passwordField = new PasswordField(); //при вводе скрывает пароль
         passwordField.setPromptText("Password");
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
@@ -286,41 +273,23 @@ public class IncidentController {
 
         dialog.getDialogPane().setContent(grid);
 
-        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-        loginButton.setDisable(true);
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType); //находим кнопку login
+        loginButton.setDisable(true); //изначально заблокирована
 
-        loginField.textProperty().addListener((obs, old, val) ->
-                loginButton.setDisable(val.trim().isEmpty() || passwordField.getText().isEmpty()));
+        loginField.textProperty().addListener((obs, old, val) -> //при каждом изменении текста проверяет на условия
+                loginButton.setDisable(val.trim().isEmpty() || passwordField.getText().isEmpty())); //если условия выполнены, разблокируем кнопку
         passwordField.textProperty().addListener((obs, old, val) ->
                 loginButton.setDisable(loginField.getText().trim().isEmpty() || val.isEmpty()));
 
-        passwordField.setOnAction(e -> {
-            if (!loginButton.isDisabled()) {
-                String login = loginField.getText().trim();
-                String password = passwordField.getText();
-
-                if (userService.login(login, password)) {
-                    if (userStorage != null) userStorage.save();
-                    dialog.setResult(true);
-                    dialog.close();
-                } else {
-                    errorLabel.setText("Invalid login or password");
-                }
+        passwordField.setOnAction(e -> { //чтобы срабатовало при enter
+            if (!loginButton.isDisabled()) { //когда кнопка активна
+                tryToLogin(dialog, errorLabel, loginField, passwordField);
             }
         });
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == loginButtonType) {
-                String login = loginField.getText().trim();
-                String password = passwordField.getText();
-
-                if (userService.login(login, password)) {
-                    if (userStorage != null) userStorage.save();
-                    return true;
-                } else {
-                    errorLabel.setText("Invalid login or password");
-                    return null;
-                }
+                return tryToLogin(dialog, errorLabel, loginField, passwordField);
             } else if (dialogButton == registerButtonType) {
                 String login = loginField.getText().trim();
                 String password = passwordField.getText();
@@ -375,7 +344,7 @@ public class IncidentController {
                         incident.getTitle(),
                         incident.getSeverity(),
                         incident.getDescription(),
-                        userService.getCurrentUser().getLogin(),
+                        userService.getCurrentUser().getLogin(), //владелец инцидента вносится из учетки
                         incident.getSampleId(),
                         incident.getInstrumentId()
                 );
@@ -401,7 +370,7 @@ public class IncidentController {
             return;
         }
 
-        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) {
+        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) { //проверка прав что можно редачить только свои инциденты
             showError("Access Denied",
                     "You can only edit your own incidents (owner: " +
                             selected.getOwnerUsername() + ")");
@@ -489,7 +458,7 @@ public class IncidentController {
                 new FileChooser.ExtensionFilter("JSON Files", "*.json")
         );
 
-        // если есть текущий файл — предложить ту же папку и имя
+        // если есть текущий файл - предложить ту же папку и имя
         if (currentFilePath != null) {
             File currentFile = new File(currentFilePath);
             fileChooser.setInitialDirectory(currentFile.getParentFile());
@@ -520,10 +489,9 @@ public class IncidentController {
         File file = fileChooser.showOpenDialog(incidentTable.getScene().getWindow());
         if (file != null) {
             try {
-                fileStorage.load(file.getAbsolutePath());
+                fileStorage.load(file.getAbsolutePath()); //загружаем и восстанавливаем сервисы
 
-                // ✅ Запоминаем путь к загруженному файлу
-                currentFilePath = file.getAbsolutePath();
+                currentFilePath = file.getAbsolutePath(); //запоминаем путь
                 hasUnsavedChanges = false;
 
                 handleRefresh();
@@ -534,6 +502,22 @@ public class IncidentController {
                 showError("Error loading file", e.getMessage());
             }
         }
+    }
+
+    private boolean tryToLogin(Dialog<Boolean> dialog, Label errorLabel, TextField loginField, PasswordField passwordField) {
+        String login = loginField.getText().trim(); //получаем текст из поля, сохраняем в переменную
+        String password = passwordField.getText();
+
+        if (userService.login(login, password)) { //если допустимы
+            if (userStorage != null) userStorage.save(); //регистрация
+            dialog.setResult(true);
+            dialog.close();
+            return true;
+        } else {
+            errorLabel.setText("Invalid login or password");
+            return false;
+        }
+
     }
 
     private void handleAddSample() {

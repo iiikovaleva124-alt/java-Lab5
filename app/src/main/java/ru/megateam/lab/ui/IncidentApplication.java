@@ -32,7 +32,7 @@ public class IncidentApplication extends Application {
                 return;
             }
 
-            FXMLLoader fxmlLoader = new FXMLLoader();
+            FXMLLoader fxmlLoader = new FXMLLoader(); //для превращения xml в кнопки и таблицы
             fxmlLoader.setLocation(fxmlFile.toURI().toURL());
             fxmlLoader.setControllerFactory(clazz -> { //создается контроллер
                 if (clazz == IncidentController.class) {
@@ -57,7 +57,8 @@ public class IncidentApplication extends Application {
             var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator, userService);
             var fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
 
-            Parent root = fxmlLoader.load();
+            Parent root = fxmlLoader.load(); //parent - абстрактный класс для контейнеров
+            //из fxml создаются объекты и связываются с контроллером
 
             IncidentController controller = fxmlLoader.getController(); //получаем созданный контроллер
             if (controller != null) {
@@ -69,22 +70,20 @@ public class IncidentApplication extends Application {
                 controller.setUserStorage(userStorage);
             }
 
-            assert controller != null;
-            boolean authenticated = controller.showAuthDialog();
+            assert controller != null; //проверяем что контроллер создан
+            boolean authenticated = controller.showAuthDialog(); //показывает диалог входа и блокирует остальное пока не войдем
 
-            controller.setSampleService(sampleService);
-            controller.setInstrumentService(instrumentService);
-            if (!authenticated) {
+            if (!authenticated) { //если нажимаем отмена или закрываем окно
                 System.exit(0);
                 return;
             }
 
-            controller.updateAuthUI();
+            controller.updateAuthUI(); //обновляем после входа
 
-            Scene scene = new Scene(root, 900, 600);
+            Scene scene = new Scene(root, 1200, 900);
 
-            String username = userService.getCurrentUser().getLogin();
-            stage.setTitle("Incident Management System - " + username);
+            String username = userService.getCurrentUser().getLogin(); //получаем логин вошедшего пользователя
+            stage.setTitle("Incident Management System - " + username); //для заголовка окна чтобы было видно в какой учетке
             stage.setScene(scene); //выводит сцену в окно
             stage.show(); //выводит на экран
 
