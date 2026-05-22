@@ -59,6 +59,7 @@ public class AppState {
         return comments;
     }
 
+
     public void setComments(Map<Long, List<Comment>> comments) {
         this.comments = comments != null ? copyCommentsMap(comments) : new HashMap<>();
     }

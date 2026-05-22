@@ -432,7 +432,7 @@ public class IncidentCli {
         }
 
         // создает через сервис
-        long id = sampleService.SampleAdd(name);
+        long id = sampleService.sampleAdd(name);
 
         System.out.println("OK sample_id=" + id);
     }
@@ -446,7 +446,7 @@ public class IncidentCli {
             return;
         }
 
-        long id = instrumentService.InstAdd(name);
+        long id = instrumentService.instAdd(name);
 
         System.out.println("OK instrument_id=" + id);
     }

@@ -5,7 +5,7 @@ plugins {
 }
 
 javafx {
-    version = "24" //Саша, вот тут версию поменяй, пожалуйста
+    version = "17" //Саша, вот тут версию поменяй, пожалуйста
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
@@ -18,8 +18,8 @@ group = 'ru.megateam.lab'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
@@ -47,12 +47,5 @@ repositories {
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/ui']
-        }
-    }
+    implementation 'org.postgresql:postgresql:42.7.3'
 }

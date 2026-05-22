@@ -17,6 +17,7 @@ class IncidentTest {
                 IncidentSeverity.HIGH,
                 IncidentStatus.NEW,
                 0L, 0L,
+                1L,
                 "SYSTEM",
                 Instant.now(),
                 Instant.now()
@@ -32,7 +33,7 @@ class IncidentTest {
 
         assertThrows(IllegalArgumentException.class, () -> {
             new Incident(1L, longTitle, "Description", IncidentSeverity.LOW,
-                    IncidentStatus.NEW, 0L, 0L, "SYSTEM",
+                    IncidentStatus.NEW, 0L, 0L, 1L, "SYSTEM",
                     Instant.now(), Instant.now());
         });
     }
@@ -41,7 +42,7 @@ class IncidentTest {
     void testEmptyTitle() {
         assertThrows(IllegalArgumentException.class, () -> {
             new Incident(1L, "", "Description", IncidentSeverity.LOW,
-                    IncidentStatus.NEW, 0L, 0L, "SYSTEM",
+                    IncidentStatus.NEW, 0L, 0L, 1L, "SYSTEM",
                     Instant.now(), Instant.now());
         });
     }
@@ -50,7 +51,7 @@ class IncidentTest {
     void testNegativeSampleId() {
         assertThrows(IllegalArgumentException.class, () -> {
             new Incident(1L, "Title", "Description", IncidentSeverity.LOW,
-                    IncidentStatus.NEW, -1L, 0L, "SYSTEM",
+                    IncidentStatus.NEW, -1L, 0L, 1L, "SYSTEM",
                     Instant.now(), Instant.now());
         });
     }

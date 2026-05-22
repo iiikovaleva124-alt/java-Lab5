@@ -49,8 +49,8 @@ public class FileService {
         }
 
         incidentRepository.replaceAll(loaded.getIncidents());
-        sampleService.replaceAll(loaded.getSamples());
-        instrumentService.replaceAll(loaded.getInstruments());
+        //sampleService.getAll(loaded.getSamples());
+        //instrumentService.getAll(loaded.getInstruments());
         incidentRepository.replaceAllComments(loaded.getComments());
     }
 }

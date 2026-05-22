@@ -10,6 +10,7 @@ public final class Incident {
     public IncidentStatus status;
     public long sampleId;
     public long instrumentId;
+    public long ownerId;
     public String ownerUsername;
     public Instant createdAt;
     public Instant updatedAt;
@@ -21,7 +22,7 @@ public final class Incident {
     }
     public Incident(long id, String title, String description,
                     IncidentSeverity severity, IncidentStatus status,
-                    long sampleId, long instrumentId, String ownerUsername,
+                    long sampleId, long instrumentId, long ownerId, String ownerUsername,
                     Instant createdAt, Instant updatedAt) { //запретить изменять стороннему разработчику
         this.id = id;
 
@@ -31,6 +32,7 @@ public final class Incident {
         setStatus(status);
         setSampleId(sampleId);
         setInstrumentId(instrumentId);
+        setOwnerId(ownerId);
         setOwnerUsername(ownerUsername);
 
         this.createdAt = createdAt != null ? createdAt : Instant.now();
@@ -48,6 +50,7 @@ public final class Incident {
     public long getSampleId() { return sampleId; }
     public long getInstrumentId() { return instrumentId; }
     public String getOwnerUsername() { return ownerUsername; }
+    public long getOwnerId() { return ownerId; }
 
     public int maxTitleLength = 128;
     public int maxDescriptionLength = 1024;
@@ -97,6 +100,15 @@ public final class Incident {
         }
         this.updatedAt = Instant.now();
     }
+
+    public void setOwnerId(long ownerId) {
+        if (ownerId <= 0) {
+            throw new IllegalArgumentException("Owner ID must be > 0");
+        }
+        this.ownerId = ownerId;
+        this.updatedAt = Instant.now();
+    }
+
     public void setSampleId(long sampleId) {
         if (sampleId < 0) {
             throw new IllegalArgumentException("Sample ID must be > 0");

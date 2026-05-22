@@ -21,6 +21,13 @@ public final class Sample {
     }
     public long getId() { return id; }
 
+    // чтобы получить id из бд
+    public void setId(long id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Id of sample can not be negative");
+        }
+        this.id = id;
+    }
 
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()) {

@@ -1,64 +1,40 @@
 package ru.megateam.lab.service;
 
 import ru.megateam.lab.domain.Instrument;
-import ru.megateam.lab.domain.Sample;
+import ru.megateam.lab.repository.JdbcInstrumentRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class InstrumentService {
-    private final Map<Long, Instrument> instruments = new HashMap<>();
-    private long nextId = 1;
+    private final JdbcInstrumentRepository repository;
 
-    public long InstAdd(String name) {
-        long id = nextId++;
-        Instrument instrument = new Instrument(id, name);
-        instruments.put(id, instrument);
-        return id;
+    public InstrumentService(JdbcInstrumentRepository repository) {
+        this.repository = repository;
+    }
+
+    public long instAdd(String name) {
+        return repository.save(name);
     }
 
     public boolean exists(long id) {
-        return instruments.containsKey(id);
+        return repository.exists(id);
     }
 
     public String getName(long id) {
-        Instrument inst = instruments.get(id);
-        return inst != null ? inst.getName() : null;
+        Instrument instrument = repository.findById(id);
+        return instrument != null ? instrument.getName() : null;
     }
 
     public Instrument getById(long id) {
-        return instruments.get(id);
+        return repository.findById(id);
     }
 
     public Long getId(String name) {
-        if (name == null) return null;
-
-        for (Map.Entry<Long, Instrument> entry : instruments.entrySet()) { //
-            if (entry.getValue().getName().equalsIgnoreCase(name)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        Instrument instrument = repository.findByName(name);
+        return instrument != null ? instrument.getId() : null;
     }
 
     public List<Instrument> getAll() {
-        return new ArrayList<>(instruments.values());
-    }
-
-    public void replaceAll(List<Instrument> newInstruments) { //удаляем все при перезаписи
-        instruments.clear();
-        for (Instrument inst : newInstruments) {
-            instruments.put(inst.getId(), inst);
-            if (inst.getId() >= nextId) {
-                nextId = inst.getId() + 1;
-            }
-        }
-    }
-
-    public void clear() {
-        instruments.clear();
-        nextId = 1;
+        return repository.findAll();
     }
 }

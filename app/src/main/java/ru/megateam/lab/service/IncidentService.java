@@ -44,7 +44,7 @@ public class IncidentService {
                         long sampleId, long instrumentId) {
         Incident incident = new Incident(
                 nextId++, title, description, severity,
-                IncidentStatus.NEW, sampleId, instrumentId, owner,
+                IncidentStatus.NEW, sampleId, instrumentId, 1L, owner,
                 Instant.now(), Instant.now()
         );
         repository.add(incident);

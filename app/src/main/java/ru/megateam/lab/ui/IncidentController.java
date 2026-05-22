@@ -12,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import ru.megateam.lab.domain.*;
 import ru.megateam.lab.persistence.AppState;
-import ru.megateam.lab.persistence.JsonFileStorage;
+//import ru.megateam.lab.persistence.JsonFileStorage;
 import ru.megateam.lab.service.IncidentService;
 import ru.megateam.lab.persistence.FileStorage;
 import javafx.scene.control.*;
@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-public class IncidentController {
+public class  IncidentController {
 
     //таблица для инцидентов
     @FXML private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
@@ -54,8 +54,8 @@ public class IncidentController {
     @FXML private Button deleteButton;
     @FXML private Button addSampleButton;
     @FXML private Button addInstrumentButton;
-    @FXML private Button saveButton;
-    @FXML private Button loadButton;
+//    @FXML private Button saveButton;
+//    @FXML private Button loadButton;
 
     //таблица для образцов
     @FXML private TableView<Sample> sampleTable;
@@ -73,7 +73,7 @@ public class IncidentController {
     private ObservableList<Instrument> instrumentList;
 
     private IncidentService incidentService;
-    private FileStorage fileStorage;
+//    private FileStorage fileStorage;
     private SampleService sampleService;
     private InstrumentService instrumentService;
 
@@ -132,8 +132,8 @@ public class IncidentController {
         addButton.setOnAction(e -> handleAdd());
         editButton.setOnAction(e -> handleEdit());
         deleteButton.setOnAction(e -> handleDelete());
-        saveButton.setOnAction(e -> handleSave());
-        loadButton.setOnAction(e -> handleLoad());
+//        saveButton.setOnAction(e -> handleSave());
+//        loadButton.setOnAction(e -> handleLoad());
         addSampleButton.setOnAction(e -> handleAddSample());
         addInstrumentButton.setOnAction(e -> handleAddInstrument());
     }
@@ -249,7 +249,7 @@ public class IncidentController {
                 AppState state = new AppState(incidents, samples, instruments, comments);
 
                 //сохраняем заполненный объект
-                fileStorage.save(file.getAbsolutePath(), state);
+//                fileStorage.save(file.getAbsolutePath(), state);
 
                 showInfo("Success", "Data saved to " + file.getName());
             } catch (Exception e) {
@@ -257,24 +257,24 @@ public class IncidentController {
             }
         }
     }
-    private void handleLoad() { //как сохранение
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Load Incidents");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("JSON Files", "*.json")
-        );
+//    private void handleLoad() { //как сохранение
+//        FileChooser fileChooser = new FileChooser();
+//        fileChooser.setTitle("Load Incidents");
+//        fileChooser.getExtensionFilters().add(
+//                new FileChooser.ExtensionFilter("JSON Files", "*.json")
+//        );
 
-        File file = fileChooser.showOpenDialog(incidentTable.getScene().getWindow());
-        if (file != null) {
-            try {
-                fileStorage.load(file.getAbsolutePath());
-                handleRefresh();
-                showInfo("Success", "Data loaded from " + file.getName());
-            } catch (Exception e) {
-                showError("Error loading file", e.getMessage());
-            }
-        }
-    }
+//        File file = fileChooser.showOpenDialog(incidentTable.getScene().getWindow());
+//        if (file != null) {
+//            try {
+//                fileStorage.load(file.getAbsolutePath());
+//                handleRefresh();
+//                showInfo("Success", "Data loaded from " + file.getName());
+//            } catch (Exception e) {
+//                showError("Error loading file", e.getMessage());
+//            }
+//        }
+//    }
 
     private void handleAddSample() {
         Dialog<Sample> dialog = new Dialog<>(); //диалоговое окно, возвращает Sample
@@ -306,14 +306,14 @@ public class IncidentController {
         saveButton.setDisable(true); //кнопка заблокирована
 
         nameField.textProperty().addListener((obs, oldVal, newVal) ->
-                saveButton.setDisable(newVal == null || newVal.trim().isEmpty())
+               saveButton.setDisable(newVal == null || newVal.trim().isEmpty())
         ); //textProperty() - свойство текста в поле, addListener - выполняет код при каждом изменении текста
         //если ввод не null или не пустой - возвращает false - кнопка активна
 
 
         dialog.setResultConverter(dialogButton -> { //setResultConverter вызывается когда нажимаем на кнопку
             if (dialogButton == saveButtonType) { //нажали сохранение
-                long id = sampleService.SampleAdd(nameField.getText().trim());
+                long id = sampleService.sampleAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Sample(id, nameField.getText().trim()); //создается образец с введенным названием
             }
@@ -359,7 +359,7 @@ public class IncidentController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                long id = instrumentService.InstAdd(nameField.getText().trim());
+                long id = instrumentService.instAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Instrument(id, nameField.getText().trim());
             }
@@ -513,6 +513,7 @@ public class IncidentController {
                                 statusChoice.getValue(),
                                 sampleId,
                                 instId,
+                                1L,
                                 owner,
                                 java.time.Instant.now(),
                                 java.time.Instant.now()
@@ -527,6 +528,7 @@ public class IncidentController {
                                 statusChoice.getValue(),
                                 sampleId,
                                 instId,
+                                1L,
                                 owner,
                                 incident.getCreatedAt(),
                                 java.time.Instant.now()
@@ -673,9 +675,9 @@ public class IncidentController {
     }
 
 
-    public void setFileStorage(JsonFileStorage storage) {
-        this.fileStorage = storage;
-    }
+//    public void setFileStorage(JsonFileStorage storage) {
+//        this.fileStorage = storage;
+//    }
 
     private void setAllIncidents(List<Incident> incidents) {//обнвление таблицы
         if (incidentList != null) {
