@@ -24,23 +24,4 @@ public class UserFileStorage {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public void loadUsers() {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            System.out.println("User file does not exist. Will create on first registration.");
-            return;
-        }
-
-        try {
-            List<User> users = objectMapper.readValue(file,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
-
-            for (User user : users) {
-                userRepository.save(user);
-            }
-            System.out.println("Loaded " + users.size() + " users from file.");
-        } catch (IOException e) {
-            System.err.println("Error loading users: " + e.getMessage());
-        }
-    }
 }
