@@ -43,14 +43,4 @@ public class UserFileStorage {
             System.err.println("Error loading users: " + e.getMessage());
         }
     }
-    
-    public void saveUsers() {
-        try {
-            // Получаем всех пользователей (это сложно, нужен метод в репозитории)
-            // Для простоты сохраняем при каждой регистрации/изменении
-            // В реальной системе лучше использовать кэш
-        } catch (Exception e) {
-            System.err.println("Error saving users: " + e.getMessage());
-        }
-    }
 }
