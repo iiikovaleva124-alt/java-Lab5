@@ -10,8 +10,7 @@ import ru.megateam.lab.persistence.DbConnectionManager;
 import ru.megateam.lab.persistence.JsonUserStorage;
 import ru.megateam.lab.persistence.UserFileStorage;
 import ru.megateam.lab.repository.InMemoryUserRepository;
-import ru.megateam.lab.repository.JdbcInstrumentRepository;
-import ru.megateam.lab.repository.JdbcSampleRepository;
+import ru.megateam.lab.repository.*;
 import ru.megateam.lab.service.*;
 import ru.megateam.lab.repository.InMemoryIncidentRepository;
 import ru.megateam.lab.persistence.FileValidator;
@@ -55,7 +54,7 @@ public class IncidentApplication extends Application {
 
             var sampleRepository = new JdbcSampleRepository(connectionManager);
             var instrumentRepository = new JdbcInstrumentRepository(connectionManager);
-            var repository = new InMemoryIncidentRepository();
+            var repository = new JdbcIncidentRepository(connectionManager);
             var sampleService = new SampleService(sampleRepository);
             var instrumentService = new InstrumentService(instrumentRepository);
             var validator = new FileValidator();
