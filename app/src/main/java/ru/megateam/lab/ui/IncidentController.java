@@ -2,25 +2,25 @@ package ru.megateam.lab.ui;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import ru.megateam.lab.domain.*;
-import ru.megateam.lab.persistence.AppState;
-//import ru.megateam.lab.persistence.JsonFileStorage;
+import ru.megateam.lab.persistence.*;
 import ru.megateam.lab.service.IncidentService;
-import ru.megateam.lab.persistence.FileStorage;
-import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import ru.megateam.lab.service.InstrumentService;
 import ru.megateam.lab.service.SampleService;
+import ru.megateam.lab.service.UserService;
 
 import java.util.Map;
 import java.util.Objects;
@@ -29,18 +29,27 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-public class  IncidentController {
+public class IncidentController {
 
     //таблица для инцидентов
-    @FXML private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
-    @FXML private TableColumn<Incident, Long> idColumn;
-    @FXML private TableColumn<Incident, String> titleColumn;
-    @FXML private TableColumn<Incident, IncidentSeverity> severityColumn; //окрасить
-    @FXML private TableColumn<Incident, IncidentStatus> statusColumn; // окрасить
-    @FXML private TableColumn<Incident, String> ownerColumn;
-    @FXML private TableColumn<Incident, String> descriptionColumn;
-    @FXML private TableColumn<Incident, String> sampleColumn;
-    @FXML private TableColumn<Incident, String> instrumentColumn;
+    @FXML
+    private TableView<Incident> incidentTable; //добавить колонки на описание sample и инструмент - по названию
+    @FXML
+    private TableColumn<Incident, Long> idColumn;
+    @FXML
+    private TableColumn<Incident, String> titleColumn;
+    @FXML
+    private TableColumn<Incident, IncidentSeverity> severityColumn; //окрасить
+    @FXML
+    private TableColumn<Incident, IncidentStatus> statusColumn; // окрасить
+    @FXML
+    private TableColumn<Incident, String> ownerColumn;
+    @FXML
+    private TableColumn<Incident, String> descriptionColumn;
+    @FXML
+    private TableColumn<Incident, String> sampleColumn;
+    @FXML
+    private TableColumn<Incident, String> instrumentColumn;
 
 
     //доп 3
@@ -48,24 +57,42 @@ public class  IncidentController {
     //сохранить и сохранить как
 
     //кнопки на панели
-    @FXML private Button refreshButton;
-    @FXML private Button addButton;
-    @FXML private Button editButton;
-    @FXML private Button deleteButton;
-    @FXML private Button addSampleButton;
-    @FXML private Button addInstrumentButton;
-//    @FXML private Button saveButton;
-//    @FXML private Button loadButton;
+    @FXML
+    private Button refreshButton;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button deleteButton;
+    @FXML
+    private Button addSampleButton;
+    @FXML
+    private Button addInstrumentButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button loadButton;
+    @FXML
+    private Button saveAsButton;
+    @FXML
+    private Button logoutButton;
 
     //таблица для образцов
-    @FXML private TableView<Sample> sampleTable;
-    @FXML private TableColumn<Sample, Long> sampleIdColumn;
-    @FXML private TableColumn<Sample, String> sampleNameColumn;
+    @FXML
+    private TableView<Sample> sampleTable;
+    @FXML
+    private TableColumn<Sample, Long> sampleIdColumn;
+    @FXML
+    private TableColumn<Sample, String> sampleNameColumn;
 
     //таблица для инструментов
-    @FXML private TableView<Instrument> instrumentTable;
-    @FXML private TableColumn<Instrument, Long> instrumentIdColumn;
-    @FXML private TableColumn<Instrument, String> instrumentNameColumn;
+    @FXML
+    private TableView<Instrument> instrumentTable;
+    @FXML
+    private TableColumn<Instrument, Long> instrumentIdColumn;
+    @FXML
+    private TableColumn<Instrument, String> instrumentNameColumn;
 
     //передает слушателям когда списки меняются
     private ObservableList<Incident> incidentList;
@@ -73,9 +100,14 @@ public class  IncidentController {
     private ObservableList<Instrument> instrumentList;
 
     private IncidentService incidentService;
-//    private FileStorage fileStorage;
+    private FileStorage fileStorage;
     private SampleService sampleService;
     private InstrumentService instrumentService;
+    private UserService userService;
+    private JsonUserStorage userStorage;
+
+    private String currentFilePath;
+    private boolean hasUnsavedChanges = false;
 
     @FXML
     public void initialize() {
@@ -132,13 +164,16 @@ public class  IncidentController {
         addButton.setOnAction(e -> handleAdd());
         editButton.setOnAction(e -> handleEdit());
         deleteButton.setOnAction(e -> handleDelete());
-//        saveButton.setOnAction(e -> handleSave());
-//        loadButton.setOnAction(e -> handleLoad());
+        saveButton.setOnAction(e -> handleSave());
+        saveAsButton.setOnAction(e -> handleSaveAs());
+        loadButton.setOnAction(e -> handleLoad());
         addSampleButton.setOnAction(e -> handleAddSample());
         addInstrumentButton.setOnAction(e -> handleAddInstrument());
+        logoutButton.setOnAction(e -> handleLogout());
+        updateAuthUI(); //проверяем есть ли авторитизация чтобы показать logout
     }
 
-    private void handleRefresh() { //обновление таблицы
+    void handleRefresh() { //обновление таблицы
         new Thread(() -> { //отдельный поток для выполнения, чтобы не блокать во время загрузки данных
             try {
                 List<Incident> incidents = incidentService.getAllIncidents();//все инциденты
@@ -158,7 +193,150 @@ public class  IncidentController {
         }).start(); //запуск этого потока
     }
 
+
+    private void saveToFile(String path) {
+        // получаем данные из сервисов
+        List<Incident> incidents = incidentService.getAllIncidents();
+        List<Sample> samples = sampleService.getAll();
+        List<Instrument> instruments = instrumentService.getAll();
+        Map<Long, List<Comment>> comments = incidentService.getAllComments();
+
+        AppState state = new AppState(incidents, samples, instruments, comments);
+
+        fileStorage.save(path, state); // сохраняем через fileStorage
+
+        String fileName = new File(path).getName();
+        showInfo("Success", "Data saved to " + fileName);
+    }
+
+    private void handleLogout() {
+        if (userStorage != null) {
+            userStorage.save(); //сохраняем новых пользователей
+        }
+
+        if (userService != null) {
+            userService.logout();
+        }
+
+        boolean authenticated = showAuthDialog(); //чтобы после выхода из акка выкидывалось окно входа
+
+        if (!authenticated) {
+            //пользователь отменил - закрываем приложение
+            Stage stage = (Stage) incidentTable.getScene().getWindow();
+            stage.close();
+            System.exit(0);
+        } else {
+            //обновляем заголовок и данные при успешном входе
+            Stage stage = (Stage) incidentTable.getScene().getWindow();
+            stage.setTitle("Incident Management System - " + userService.getCurrentUser().getLogin());
+            handleRefresh();
+        }
+    }
+
+    public void updateAuthUI() {
+        if (userService != null && userService.isLoggedIn()) { //если есть вход
+            logoutButton.setVisible(true); //показать кнопку выхода из аккаунта
+            logoutButton.setDisable(false); //разблокировать кнопку
+        } else {
+            logoutButton.setVisible(false);
+            logoutButton.setDisable(true);
+        }
+    }
+
+    boolean showAuthDialog() {
+        Dialog<Boolean> dialog = new Dialog<>();
+        dialog.setTitle("Login");
+        dialog.setHeaderText("Please login or register");
+        dialog.setResizable(true);
+
+        ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE); //реагирует на enter
+        ButtonType registerButtonType = new ButtonType("Register", ButtonBar.ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, registerButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField loginField = new TextField();
+        loginField.setPromptText("Login");
+        PasswordField passwordField = new PasswordField(); //при вводе скрывает пароль
+        passwordField.setPromptText("Password");
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+
+        grid.add(new Label("Login:"), 0, 0);
+        grid.add(loginField, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+        grid.add(errorLabel, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType); //находим кнопку login
+        loginButton.setDisable(true); //изначально заблокирована
+
+        loginField.textProperty().addListener((obs, old, val) -> //при каждом изменении текста проверяет на условия
+                loginButton.setDisable(val.trim().isEmpty() || passwordField.getText().isEmpty())); //если условия выполнены, разблокируем кнопку
+        passwordField.textProperty().addListener((obs, old, val) ->
+                loginButton.setDisable(loginField.getText().trim().isEmpty() || val.isEmpty()));
+
+        passwordField.setOnAction(e -> { //чтобы срабатовало при enter
+            if (!loginButton.isDisabled()) { //когда кнопка активна
+                tryToLogin(dialog, errorLabel, loginField, passwordField);
+            }
+        });
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return tryToLogin(dialog, errorLabel, loginField, passwordField);
+            } else if (dialogButton == registerButtonType) {
+                String login = loginField.getText().trim();
+                String password = passwordField.getText();
+
+                if (login.isEmpty() || password.isEmpty()) {
+                    errorLabel.setText("Please enter login and password");
+                    return null;
+                }
+                if (password.length() < 4) {
+                    errorLabel.setText("Password must be at least 4 characters");
+                    return null;
+                }
+
+                try {
+                    if (userService.register(login, password)) {
+                        if (userStorage != null) userStorage.save();
+
+                        if (userService.login(login, password)) {
+                            if (userStorage != null) userStorage.save();
+                            return true;
+                        }
+                        return null;
+                    } else {
+                        errorLabel.setText("User already exists");
+                        return null;
+                    }
+                } catch (IllegalArgumentException e) {
+                    errorLabel.setText(e.getMessage());
+                    return null;
+
+                }
+            }
+            return false;
+        });
+
+        Optional<Boolean> result = dialog.showAndWait();
+        return result.isPresent() && result.get();
+    }
+
     private void handleAdd() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to add incidents");
+            return;
+        }
+
         Optional<Incident> result = showIncidentDialog(null); //диалог в режиме создания
         result.ifPresent(incident -> { //если не отмена
             try {
@@ -166,7 +344,7 @@ public class  IncidentController {
                         incident.getTitle(),
                         incident.getSeverity(),
                         incident.getDescription(),
-                        incident.getOwnerUsername(),
+                        userService.getCurrentUser().getLogin(), //владелец инцидента вносится из учетки
                         incident.getSampleId(),
                         incident.getInstrumentId()
                 );
@@ -179,9 +357,23 @@ public class  IncidentController {
     }
 
     private void handleEdit() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to edit incidents");
+            return;
+        }
+
         Incident selected = incidentTable.getSelectionModel().getSelectedItem(); //выбранный в таблице инцидент
         if (selected == null) { //проверка что выбран
             showError("No selection", "Please select an incident to edit");
+            return;
+        }
+
+        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) { //проверка прав что можно редачить только свои инциденты
+            showError("Access Denied",
+                    "You can only edit your own incidents (owner: " +
+                            selected.getOwnerUsername() + ")");
             return;
         }
 
@@ -206,9 +398,23 @@ public class  IncidentController {
     }
 
     private void handleDelete() {
+
+        if (userService == null || !userService.isLoggedIn()) {
+            showError("Authentication Required",
+                    "Please login first to delete incidents");
+            return;
+        }
+
         Incident selected = incidentTable.getSelectionModel().getSelectedItem(); //выбранный инцидент
         if (selected == null) {
             showError("No selection", "Please select an incident to delete");
+            return;
+        }
+
+        if (!selected.getOwnerUsername().equals(userService.getCurrentUser().getLogin())) {
+            showError("Access Denied",
+                    "You can only delete your own incidents (owner: " +
+                            selected.getOwnerUsername() + ")");
             return;
         }
 
@@ -230,51 +436,89 @@ public class  IncidentController {
     }
 
     private void handleSave() {
-        FileChooser fileChooser = new FileChooser(); //диалог для выбора файла
-        fileChooser.setTitle("Save Incidents");
-        fileChooser.getExtensionFilters().add(    //добавляет фильтр на расширения
-                new FileChooser.ExtensionFilter("JSON Files", "*.json") //ограничивает возможные файлы только JSON
+        if (currentFilePath == null) {
+            showInfo("No file", "Please use 'Save As...' to select a file first");
+            return;
+        }
+
+        try {
+            // сохраняем в запомненный путь
+            saveToFile(currentFilePath);
+            hasUnsavedChanges = false;  // Сбрасываем флаг изменений
+
+        } catch (Exception e) {
+            showError("Error saving file", e.getMessage());
+        }
+    }
+
+    private void handleSaveAs() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Incidents As...");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files", "*.json")
         );
 
-        File file = fileChooser.showSaveDialog(incidentTable.getScene().getWindow()); //получает все окно, внутри получает визуал - сцена, внутри получает таблицу
-        if (file != null) { //файл выбран
+        // если есть текущий файл - предложить ту же папку и имя
+        if (currentFilePath != null) {
+            File currentFile = new File(currentFilePath);
+            fileChooser.setInitialDirectory(currentFile.getParentFile());
+            fileChooser.setInitialFileName(currentFile.getName());
+        }
+
+        File file = fileChooser.showSaveDialog(incidentTable.getScene().getWindow());
+        if (file != null) {
             try {
-                //получаем данные из сервисов
-                List<Incident> incidents = incidentService.getAllIncidents();
-                List<Sample> samples = sampleService.getAll();
-                List<Instrument> instruments = instrumentService.getAll();
-                Map<Long, List<Comment>> comments = incidentService.getAllComments(); // если есть такой метод
+                // запоминаем новый путь и сохраняем
+                currentFilePath = file.getAbsolutePath();
+                saveToFile(currentFilePath);
+                hasUnsavedChanges = false;
 
-                //создаём AppState с данными
-                AppState state = new AppState(incidents, samples, instruments, comments);
-
-                //сохраняем заполненный объект
-//                fileStorage.save(file.getAbsolutePath(), state);
-
-                showInfo("Success", "Data saved to " + file.getName());
             } catch (Exception e) {
                 showError("Error saving file", e.getMessage());
             }
         }
     }
-//    private void handleLoad() { //как сохранение
-//        FileChooser fileChooser = new FileChooser();
-//        fileChooser.setTitle("Load Incidents");
-//        fileChooser.getExtensionFilters().add(
-//                new FileChooser.ExtensionFilter("JSON Files", "*.json")
-//        );
 
-//        File file = fileChooser.showOpenDialog(incidentTable.getScene().getWindow());
-//        if (file != null) {
-//            try {
-//                fileStorage.load(file.getAbsolutePath());
-//                handleRefresh();
-//                showInfo("Success", "Data loaded from " + file.getName());
-//            } catch (Exception e) {
-//                showError("Error loading file", e.getMessage());
-//            }
-//        }
-//    }
+    private void handleLoad() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Load Incidents");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files", "*.json")
+        );
+
+        File file = fileChooser.showOpenDialog(incidentTable.getScene().getWindow());
+        if (file != null) {
+            try {
+                fileStorage.load(file.getAbsolutePath()); //загружаем и восстанавливаем сервисы
+
+                currentFilePath = file.getAbsolutePath(); //запоминаем путь
+                hasUnsavedChanges = false;
+
+                handleRefresh();
+
+                showInfo("Success", "Data loaded from " + file.getName());
+
+            } catch (Exception e) {
+                showError("Error loading file", e.getMessage());
+            }
+        }
+    }
+
+    private boolean tryToLogin(Dialog<Boolean> dialog, Label errorLabel, TextField loginField, PasswordField passwordField) {
+        String login = loginField.getText().trim(); //получаем текст из поля, сохраняем в переменную
+        String password = passwordField.getText();
+
+        if (userService.login(login, password)) { //если допустимы
+            if (userStorage != null) userStorage.save(); //регистрация
+            dialog.setResult(true);
+            dialog.close();
+            return true;
+        } else {
+            errorLabel.setText("Invalid login or password");
+            return false;
+        }
+
+    }
 
     private void handleAddSample() {
         Dialog<Sample> dialog = new Dialog<>(); //диалоговое окно, возвращает Sample
@@ -306,14 +550,14 @@ public class  IncidentController {
         saveButton.setDisable(true); //кнопка заблокирована
 
         nameField.textProperty().addListener((obs, oldVal, newVal) ->
-               saveButton.setDisable(newVal == null || newVal.trim().isEmpty())
+                saveButton.setDisable(newVal == null || newVal.trim().isEmpty())
         ); //textProperty() - свойство текста в поле, addListener - выполняет код при каждом изменении текста
         //если ввод не null или не пустой - возвращает false - кнопка активна
 
 
         dialog.setResultConverter(dialogButton -> { //setResultConverter вызывается когда нажимаем на кнопку
             if (dialogButton == saveButtonType) { //нажали сохранение
-                long id = sampleService.sampleAdd(nameField.getText().trim());
+                long id = sampleService.SampleAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Sample(id, nameField.getText().trim()); //создается образец с введенным названием
             }
@@ -359,7 +603,7 @@ public class  IncidentController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                long id = instrumentService.instAdd(nameField.getText().trim());
+                long id = instrumentService.InstAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Instrument(id, nameField.getText().trim());
             }
@@ -408,8 +652,10 @@ public class  IncidentController {
         statusChoice.setValue(incident != null ? incident.getStatus() : IncidentStatus.NEW);
 
         Label ownerLabel = new Label("Owner:");
-        TextField ownerField = new TextField(incident != null ? incident.getOwnerUsername() : "");
-        ownerField.setPromptText("Enter owner (or leave empty for SYSTEM)"); //если пустое то при создании присвоится system
+        String currentOwner = userService.getCurrentUser().getLogin();  // Текущий пользователь
+        TextField ownerField = new TextField(currentOwner);
+        ownerField.setEditable(false);
+        ownerField.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #666666;");
 
         Label sampleIdLabel = new Label("Sample ID:");
         TextField sampleIdField = new TextField(
@@ -513,7 +759,6 @@ public class  IncidentController {
                                 statusChoice.getValue(),
                                 sampleId,
                                 instId,
-                                1L,
                                 owner,
                                 java.time.Instant.now(),
                                 java.time.Instant.now()
@@ -528,7 +773,6 @@ public class  IncidentController {
                                 statusChoice.getValue(),
                                 sampleId,
                                 instId,
-                                1L,
                                 owner,
                                 incident.getCreatedAt(),
                                 java.time.Instant.now()
@@ -675,9 +919,17 @@ public class  IncidentController {
     }
 
 
-//    public void setFileStorage(JsonFileStorage storage) {
-//        this.fileStorage = storage;
-//    }
+    public void setFileStorage(JsonFileStorage storage) {
+        this.fileStorage = storage;
+    }
+
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void setUserStorage(JsonUserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     private void setAllIncidents(List<Incident> incidents) {//обнвление таблицы
         if (incidentList != null) {

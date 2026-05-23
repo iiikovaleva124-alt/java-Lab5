@@ -2,6 +2,7 @@ package ru.megateam.lab.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.megateam.lab.repository.UserRepository;
 import ru.megateam.lab.service.*;
 import ru.megateam.lab.repository.InMemoryIncidentRepository;
 import ru.megateam.lab.persistence.*;
@@ -16,12 +17,14 @@ class IncidentServiceTest {
     private IncidentService incidentService;
     private SampleService sampleService;
     private InstrumentService instrumentService;
+    private UserService userService;
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
         InMemoryIncidentRepository repository = new InMemoryIncidentRepository();
         FileValidator fileValidator = new FileValidator();
-        incidentService = new IncidentService(repository, sampleService, instrumentService, null, fileValidator);
+        incidentService = new IncidentService(repository, sampleService, instrumentService, null, fileValidator, userService);
         sampleService = new SampleService();
         instrumentService = new InstrumentService();
         FileStorage fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
@@ -31,7 +34,8 @@ class IncidentServiceTest {
                 sampleService,
                 instrumentService,
                 fileStorage,
-                fileValidator
+                fileValidator,
+                userService
         );
     }
 

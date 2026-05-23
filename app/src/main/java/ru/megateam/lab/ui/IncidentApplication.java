@@ -2,19 +2,19 @@ package ru.megateam.lab.ui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-//import ru.megateam.lab.persistence.JsonFileStorage;
-import ru.megateam.lab.repository.JdbcInstrumentRepository;
-import ru.megateam.lab.repository.JdbcSampleRepository;
+import ru.megateam.lab.persistence.JsonFileStorage;
+import ru.megateam.lab.persistence.JsonUserStorage;
+import ru.megateam.lab.persistence.UserFileStorage;
+import ru.megateam.lab.repository.InMemoryUserRepository;
 import ru.megateam.lab.service.IncidentService;
 import ru.megateam.lab.service.SampleService;
 import ru.megateam.lab.service.InstrumentService;
 import ru.megateam.lab.repository.InMemoryIncidentRepository;
 import ru.megateam.lab.persistence.FileValidator;
-import ru.megateam.lab.persistence.DbConnectionManager;
-import ru.megateam.lab.repository.JdbcIncidentRepository;
-//import ru.megateam.lab.persistence.FileValidator;
+import ru.megateam.lab.service.UserService;
 
 import java.io.File;
 
@@ -23,6 +23,7 @@ public class IncidentApplication extends Application {
     @Override
     public void start(Stage stage) {
         try {
+
             String fxmlPath = "src/main/resources/ru/megateam/lab/ui/IncidentView.fxml"; //путь к файлу разметки интерфейса
             File fxmlFile = new File(fxmlPath);
 
@@ -31,7 +32,7 @@ public class IncidentApplication extends Application {
                 return;
             }
 
-            FXMLLoader fxmlLoader = new FXMLLoader();
+            FXMLLoader fxmlLoader = new FXMLLoader(); //для превращения xml в кнопки и таблицы
             fxmlLoader.setLocation(fxmlFile.toURI().toURL());
             fxmlLoader.setControllerFactory(clazz -> { //создается контроллер
                 if (clazz == IncidentController.class) {
@@ -44,38 +45,49 @@ public class IncidentApplication extends Application {
                 }
             });
 
+            InMemoryUserRepository userRepository = new InMemoryUserRepository();
+            JsonUserStorage userStorage = new JsonUserStorage("users.json", userRepository);
+            userStorage.load(); //загружаем при старте пользователей при запуске
+            UserService userService = new UserService(userRepository, userStorage);
 
-            var dbConnectionManager = new DbConnectionManager();
-            var repository = new JdbcIncidentRepository(dbConnectionManager);
-            var sampleRepository = new JdbcSampleRepository(dbConnectionManager);
-            var instrumentRepository = new JdbcInstrumentRepository(dbConnectionManager);
-            var sampleService = new SampleService(sampleRepository);
-            var instrumentService = new InstrumentService(instrumentRepository);
+            var repository = new InMemoryIncidentRepository();
+            var sampleService = new SampleService();
+            var instrumentService = new InstrumentService();
             var validator = new FileValidator();
+            var incidentService = new IncidentService(repository, sampleService, instrumentService, null, validator, userService);
+            var fileStorage = new JsonFileStorage(incidentService, sampleService, instrumentService);
 
-            var incidentService = new IncidentService(
-                    repository,
-                    sampleService,
-                    instrumentService,
-                    null,
-                    validator
-            );
-
-            Scene scene = new Scene(fxmlLoader.load(), 900, 600); //создает визуал
+            Parent root = fxmlLoader.load(); //parent - абстрактный класс для контейнеров
+            //из fxml создаются объекты и связываются с контроллером
 
             IncidentController controller = fxmlLoader.getController(); //получаем созданный контроллер
             if (controller != null) {
                 controller.setIncidentService(incidentService); //передаем сервисы
+                controller.setFileStorage(fileStorage);
+                controller.setSampleService(sampleService);
+                controller.setInstrumentService(instrumentService);
+                controller.setUserService(userService);
+                controller.setUserStorage(userStorage);
             }
 
-            assert controller != null;
-            controller.setSampleService(sampleService);
-            controller.setInstrumentService(instrumentService);
+            assert controller != null; //проверяем что контроллер создан
+            boolean authenticated = controller.showAuthDialog(); //показывает диалог входа и блокирует остальное пока не войдем
 
+            if (!authenticated) { //если нажимаем отмена или закрываем окно
+                System.exit(0);
+                return;
+            }
 
-            stage.setTitle("Incident Management System");
+            controller.updateAuthUI(); //обновляем после входа
+
+            Scene scene = new Scene(root, 1200, 900);
+
+            String username = userService.getCurrentUser().getLogin(); //получаем логин вошедшего пользователя
+            stage.setTitle("Incident Management System - " + username); //для заголовка окна чтобы было видно в какой учетке
             stage.setScene(scene); //выводит сцену в окно
             stage.show(); //выводит на экран
+
+            controller.handleRefresh();
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
