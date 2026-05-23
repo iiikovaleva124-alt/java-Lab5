@@ -16,12 +16,11 @@ public class IncidentService {
     private final IncidentRepository repository;
     private final SampleService sampleService;
     private final InstrumentService instrumentService;
-    private final FileStorage fileStorage;
+    private FileStorage fileStorage;
     private final FileValidator validator;
     private final UserService userService;
 
     private long nextId = 1;
-
     //конструктор
     public IncidentService(IncidentRepository repository,
                                SampleService sampleService,
@@ -35,6 +34,18 @@ public class IncidentService {
             this.validator = validator;
             this.userService = userService;
         }
+
+    public IncidentService(IncidentRepository repository,
+                           SampleService sampleService,
+                           InstrumentService instrumentService,
+                           FileValidator validator, UserService userService) {
+        this.repository = repository;
+        this.sampleService = sampleService;
+        this.instrumentService = instrumentService;
+        this.validator = validator;
+        this.userService = userService;
+    }
+
 
     public Incident add(String title, IncidentSeverity severity,
                         String description, String owner) {
@@ -50,7 +61,7 @@ public class IncidentService {
 
         Incident incident = new Incident(
                 nextId++, title, description, severity,
-                IncidentStatus.NEW, sampleId, instrumentId, 1L,  currentUsername,
+                IncidentStatus.NEW, sampleId, instrumentId, currentUsername,
                 Instant.now(), Instant.now()
         );
         repository.add(incident);

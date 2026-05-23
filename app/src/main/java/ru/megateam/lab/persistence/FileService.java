@@ -12,8 +12,8 @@ public class FileService {
     private final IncidentRepository incidentRepository;
     private final SampleService sampleService;
     private final InstrumentService instrumentService;
-    private final FileStorage fileStorage;
-    private final FileValidator fileValidator;
+    private FileStorage fileStorage;
+    private FileValidator fileValidator;
 
     public FileService(IncidentRepository incidentRepository,
                        SampleService sampleService,
@@ -25,6 +25,15 @@ public class FileService {
         this.instrumentService = instrumentService;
         this.fileStorage = fileStorage;
         this.fileValidator = fileValidator;
+    }
+
+    public FileService(IncidentRepository incidentRepository,
+                       SampleService sampleService,
+                       InstrumentService instrumentService) {
+        this.incidentRepository = incidentRepository;
+        this.sampleService = sampleService;
+        this.instrumentService = instrumentService;
+
     }
 
     public void save(String path) {

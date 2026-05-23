@@ -22,7 +22,7 @@ public final class Incident {
     }
     public Incident(long id, String title, String description,
                     IncidentSeverity severity, IncidentStatus status,
-                    long sampleId, long instrumentId, long ownerId, String ownerUsername,
+                    long sampleId, long instrumentId, String ownerUsername,
                     Instant createdAt, Instant updatedAt) { //запретить изменять стороннему разработчику
         this.id = id;
 
@@ -32,7 +32,7 @@ public final class Incident {
         setStatus(status);
         setSampleId(sampleId);
         setInstrumentId(instrumentId);
-        setOwnerId(ownerId);
+        setOwnerUsername(ownerUsername);
         setOwnerUsername(ownerUsername);
 
         this.createdAt = createdAt != null ? createdAt : Instant.now();

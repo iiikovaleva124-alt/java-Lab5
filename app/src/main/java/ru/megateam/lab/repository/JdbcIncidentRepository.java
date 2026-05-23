@@ -47,7 +47,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
             statement.setString(4, incident.getStatus().name());
             statement.setLong(5, incident.getSampleId());
             statement.setLong(6, incident.getInstrumentId());
-            statement.setLong(7, incident.getOwnerId());
+            statement.setString(7, incident.getOwnerUsername());
             statement.setTimestamp(8, Timestamp.from(incident.getCreatedAt()));
             statement.setTimestamp(9, Timestamp.from(incident.getUpdatedAt()));
 
@@ -81,7 +81,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
                        i.status,
                        i.sample_id,
                        i.instrument_id,
-                       i.owner_id,
+                       i.owner,
                        u.username AS owner_username,
                        i.created_at,
                        i.updated_at
@@ -120,7 +120,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
                        i.status,
                        i.sample_id,
                        i.instrument_id,
-                       i.owner_id,
+                       i.owner,
                        u.username AS owner_username,
                        i.created_at,
                        i.updated_at

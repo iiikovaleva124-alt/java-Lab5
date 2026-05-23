@@ -557,7 +557,7 @@ public class IncidentController {
 
         dialog.setResultConverter(dialogButton -> { //setResultConverter вызывается когда нажимаем на кнопку
             if (dialogButton == saveButtonType) { //нажали сохранение
-                long id = sampleService.SampleAdd(nameField.getText().trim());
+                long id = sampleService.sampleAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Sample(id, nameField.getText().trim()); //создается образец с введенным названием
             }
@@ -603,7 +603,7 @@ public class IncidentController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                long id = instrumentService.InstAdd(nameField.getText().trim());
+                long id = instrumentService.instAdd(nameField.getText().trim());
                 handleRefresh();
                 return new Instrument(id, nameField.getText().trim());
             }
@@ -775,7 +775,7 @@ public class IncidentController {
                                 instId,
                                 owner,
                                 incident.getCreatedAt(),
-                                java.time.Instant.now()
+                                incident.getUpdatedAt()
                         );
                     }
                 } catch (NumberFormatException e) {
@@ -918,10 +918,6 @@ public class IncidentController {
         this.instrumentService = service;
     }
 
-
-    public void setFileStorage(JsonFileStorage storage) {
-        this.fileStorage = storage;
-    }
 
     public void setUserService(UserService userService) {
         this.userService = userService;
