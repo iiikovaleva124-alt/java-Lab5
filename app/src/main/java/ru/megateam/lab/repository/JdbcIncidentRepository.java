@@ -74,19 +74,18 @@ public class JdbcIncidentRepository implements IncidentRepository {
     @Override
     public Optional<Incident> getById(long id) {
         String sql = """
-                SELECT i.id,
-                       i.title,
-                       i.description,
-                       i.severity,
-                       i.status,
-                       i.sample_id,
-                       i.instrument_id,
-                       i.owner,
-                       u.username AS owner_username,
-                       i.created_at,
-                       i.updated_at
-                FROM incidents i
-                WHERE i.id = ?
+                SELECT id,
+                       title,
+                       description,
+                       severity,
+                       status,
+                       sample_id,
+                       instrument_id,
+                       owner,
+                       created_at,
+                       updated_at
+                FROM incidents
+                WHERE id = ?
                 """;
 
         try (Connection connection = connectionManager.getConnection();
