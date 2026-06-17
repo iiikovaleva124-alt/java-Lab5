@@ -24,7 +24,7 @@ public class Main {
         InMemoryUserRepository userRepository = new InMemoryUserRepository();
         JsonUserStorage userStorage = new JsonUserStorage("users.json", userRepository);
         userStorage.load();
-        UserService userService = new UserService(userRepository, userStorage);
+        UserService userService = new UserService(userRepository);
         IncidentService incidentService = new IncidentService(incidentRepository, sampleService, instrumentService, null, fileValidator, null);
 
         incidentService = new IncidentService(

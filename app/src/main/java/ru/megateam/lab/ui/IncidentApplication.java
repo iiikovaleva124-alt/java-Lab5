@@ -45,13 +45,10 @@ public class IncidentApplication extends Application {
                 }
             });
 
-            InMemoryUserRepository userRepository = new InMemoryUserRepository();
-            JsonUserStorage userStorage = new JsonUserStorage("users.json", userRepository);
-            userStorage.load(); //загружаем при старте пользователей при запуске
-            UserService userService = new UserService(userRepository, userStorage);
-
             var connectionManager = new DbConnectionManager();
 
+            var userRepository = new JdbcUserRepository(connectionManager);
+            UserService userService = new UserService(userRepository);
             var sampleRepository = new JdbcSampleRepository(connectionManager);
             var instrumentRepository = new JdbcInstrumentRepository(connectionManager);
             var repository = new JdbcIncidentRepository(connectionManager);
@@ -69,7 +66,6 @@ public class IncidentApplication extends Application {
                 controller.setSampleService(sampleService);
                 controller.setInstrumentService(instrumentService);
                 controller.setUserService(userService);
-                controller.setUserStorage(userStorage);
             }
 
             assert controller != null; //проверяем что контроллер создан

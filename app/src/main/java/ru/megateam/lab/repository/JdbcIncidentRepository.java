@@ -34,7 +34,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
     public Incident add(Incident incident) {
         String sql = """
                 INSERT INTO incidents
-                (title, description, severity, status, sample_id, instrument_id, owner_id, created_at, updated_at)
+                (title, description, severity, status, sample_id, instrument_id, owner, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -86,7 +86,6 @@ public class JdbcIncidentRepository implements IncidentRepository {
                        i.created_at,
                        i.updated_at
                 FROM incidents i
-                JOIN users u ON u.id = i.owner_id
                 WHERE i.id = ?
                 """;
 
@@ -113,21 +112,12 @@ public class JdbcIncidentRepository implements IncidentRepository {
         List<Incident> incidents = new ArrayList<>();
 
         String sql = """
-                SELECT i.id,
-                       i.title,
-                       i.description,
-                       i.severity,
-                       i.status,
-                       i.sample_id,
-                       i.instrument_id,
-                       i.owner,
-                       u.username AS owner_username,
-                       i.created_at,
-                       i.updated_at
-                FROM incidents i
-                JOIN users u ON u.id = i.owner_id
-                ORDER BY i.id
-                """;
+        SELECT i.id, i.title, i.description, i.severity, i.status,
+               i.sample_id, i.instrument_id, i.owner,
+               i.created_at, i.updated_at
+        FROM incidents i
+        ORDER BY i.id
+        """;
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -154,7 +144,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
                     status = ?,
                     sample_id = ?,
                     instrument_id = ?,
-                    owner_id = ?,
+                    owner = ?,
                     updated_at = ?
                 WHERE id = ?
                 """;
@@ -170,7 +160,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
             statement.setString(4, incident.getStatus().name());
             statement.setLong(5, incident.getSampleId());
             statement.setLong(6, incident.getInstrumentId());
-            statement.setLong(7, incident.getOwnerId());
+            statement.setString(7, incident.getOwnerUsername());
             statement.setTimestamp(8, Timestamp.from(incident.getUpdatedAt()));
             statement.setLong(9, incident.getId());
 
@@ -253,7 +243,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
         String deleteSql = "DELETE FROM incidents";
         String insertSql = """
                 INSERT INTO incidents
-                (id, title, description, severity, status, sample_id, instrument_id, owner_id, created_at, updated_at)
+                (id, title, description, severity, status, sample_id, instrument_id, owner, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -273,7 +263,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
                     insertStatement.setString(5, incident.getStatus().name());
                     insertStatement.setLong(6, incident.getSampleId());
                     insertStatement.setLong(7, incident.getInstrumentId());
-                    insertStatement.setLong(8, incident.getOwnerId());
+                    insertStatement.setString(8, incident.getOwnerUsername());
                     insertStatement.setTimestamp(9, Timestamp.from(incident.getCreatedAt()));
                     insertStatement.setTimestamp(10, Timestamp.from(incident.getUpdatedAt()));
                     insertStatement.addBatch();
@@ -304,8 +294,7 @@ public class JdbcIncidentRepository implements IncidentRepository {
         incident.setStatus(IncidentStatus.valueOf(rs.getString("status")));
         incident.setSampleId(rs.getLong("sample_id"));
         incident.setInstrumentId(rs.getLong("instrument_id"));
-        incident.setOwnerId(rs.getLong("owner_id"));
-        incident.setOwnerUsername(rs.getString("owner_username"));
+        incident.setOwnerUsername(rs.getString("owner"));
 
         Timestamp createdAtTs = rs.getTimestamp("created_at");
         Timestamp updatedAtTs = rs.getTimestamp("updated_at");

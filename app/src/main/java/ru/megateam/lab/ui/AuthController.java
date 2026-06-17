@@ -99,9 +99,6 @@ public class AuthController {
     }
 
     private void onAuthSuccess() {
-        if (userStorage != null) {
-            userStorage.save(); //сохраняем пользователя при успешной авторитизации
-        }
 
         Stage stage = (Stage) loginButton.getScene().getWindow();
         stage.close(); //закрываем окно авторизации
